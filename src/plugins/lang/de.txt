@@ -1,0 +1,199 @@
+language: German
+countries: de at ch li lu
+
+// Übersetzungstabelle des Plugin-Fundaments (src/plugins), Format juce::LocalisedStrings.
+// Schlüssel ist der englische Quelltext aus TRANS ("...") bzw. NEEDS_TRANS ("..."), Regeln in
+// CODING_GUIDELINES.md §15. Geprüft vom Test "Übersetzungen: Fundament" (tests/i18n).
+
+"Could not save settings: {file}" = "Einstellungen konnten nicht gespeichert werden: {file}"
+
+// GainProcessor.cpp
+"Gain" = "Gain"
+"Level" = "Pegel"
+
+// TrimProcessor.cpp
+"Trim" = "Trim"
+"Phase" = "Phase"
+
+// LimiterProcessor.cpp
+"Ceiling" = "Ceiling"
+"Release" = "Release"
+"Limiter" = "Limiter"
+
+// CompressorProcessor.cpp
+"Threshold" = "Threshold"
+"Ratio" = "Ratio"
+"Attack" = "Attack"
+"Knee" = "Knee"
+"Makeup" = "Makeup"
+"Ext. Sidechain" = "Ext. Sidechain"
+"Curve" = "Kennlinie"
+"Input dB" = "Eingang dB"
+"Output dB" = "Ausgang dB"
+"Dynamics" = "Dynamik"
+"Measure the level of another track (e.g. the kick ducks the bass). Source: right-click the insert slot, then Sidechain source" = "Pegel an einer anderen Spur messen (z. B. Bassdrum duckt den Bass). Quelle: Rechtsklick auf den Insert-Slot → Sidechain-Quelle"
+"Time" = "Zeit"
+"Output" = "Ausgang"
+
+// GateProcessor.cpp
+"Range" = "Bereich"
+"Hold" = "Hold"
+"Hysteresis" = "Hysterese"
+"Gate" = "Gate"
+"The gate closes below this level" = "Unter diesem Pegel schließt das Gate"
+"How far it attenuates: -80 dB = closed, -10 dB = just quieter" = "Wie weit es absenkt: −80 dB = zu, −10 dB = nur leiser"
+"Closes only this far below the threshold: prevents chattering" = "Schließt erst so viel unter der Schwelle: verhindert Flattern"
+"Open by another track (e.g. the bass opens with the kick). Source: right-click the insert slot, then Sidechain source" = "Öffnen nach einer anderen Spur (z. B. Bass öffnet mit der Bassdrum). Quelle: Rechtsklick auf den Insert-Slot → Sidechain-Quelle"
+"How fast it opens: short = the attack stays crisp" = "Wie schnell es öffnet: kurz = Anschlag bleibt knackig"
+"Stays open this long after the level drops below the threshold" = "Bleibt nach dem Unterschreiten noch so lange offen"
+"How slowly it closes: long = natural decay" = "Wie langsam es schließt: lang = natürliches Ausklingen"
+
+// ReverbProcessor.cpp
+"Pre-Delay" = "Pre-Delay"
+"Decay" = "Decay"
+"Size" = "Größe"
+"Damping" = "Dämpfung"
+"Low Cut" = "Low Cut"
+"Diffusion" = "Diffusion"
+"Modulation" = "Modulation"
+"Width" = "Breite"
+"Mix" = "Mix"
+"Room" = "Raum"
+"Gap before the first reflections: separates the voice from the room" = "Abstand bis zum ersten Hall: trennt die Stimme vom Raum"
+"Reverb time: how long until the tail has decayed by 60 dB" = "Nachhallzeit: so lange, bis der Hall um 60 dB abgeklungen ist"
+"Room size: spacing of the reflections" = "Raumgröße: Abstände der Reflexionen"
+"Density: low = single echoes, high = smooth cloud" = "Dichte: wenig = einzelne Echos, viel = glatte Wolke"
+"Tone" = "Klang"
+"Highs decay faster: lower = darker, warmer" = "Höhen klingen schneller ab: weniger = dunkler, wärmer"
+"Keeps bass out of the reverb so it does not boom" = "Bass aus dem Hall halten, damit er nicht dröhnt"
+"Slight movement against a metallic sound" = "Leichtes Schwingen gegen metallischen Klang"
+"Stereo width of the reverb" = "Stereobreite des Halls"
+"Amount of reverb. On an FX track (send) use 100 %" = "Anteil Hall. Auf einer FX-Spur (Send) 100 %"
+
+// DelayProcessor.cpp
+"Feedback" = "Feedback"
+"High Cut" = "High Cut"
+"Sync" = "Sync"
+"Note" = "Note"
+"Ping-Pong" = "Ping-Pong"
+"Time in the project's tempo (note value) instead of milliseconds" = "Zeit im Takt des Projekts (Notenwert) statt in Millisekunden"
+"Note value when synced: . = dotted, T = triplet" = "Notenwert bei Sync: . = punktiert, T = triolisch"
+"Time in milliseconds when Sync is off" = "Zeit in Millisekunden, wenn Sync aus ist"
+"Repeats" = "Wiederholungen"
+"How much of the echo is fed back: more = more repeats" = "Wie viel vom Echo wieder ins Echo geht: mehr = mehr Wiederholungen"
+"Echoes alternate between left and right" = "Echos springen abwechselnd links und rechts"
+"Each repeat gets thinner: keeps the bass clean" = "Jede Wiederholung wird dünner: hält den Bass sauber"
+"Each repeat gets duller, like a tape echo" = "Jede Wiederholung wird dumpfer, wie beim Bandecho"
+"Amount of echo. On an FX track (send) use 100 %" = "Anteil Echo. Auf einer FX-Spur (Send) 100 %"
+
+// DistortionProcessor.cpp
+"Drive" = "Drive"
+"Shape" = "Form"
+"Soft" = "Soft"
+"Hard" = "Hard"
+"Tube" = "Tube"
+"Input" = "Eingang"
+"Distortion" = "Verzerrung"
+
+// EqProcessor.cpp
+"HP Freq" = "HP Freq"
+"HP On" = "HP Ein"
+"Low Shelf" = "Low Shelf"
+"Low Mid" = "Low Mid"
+"High Mid" = "High Mid"
+"High Shelf" = "High Shelf"
+"{band} Freq" = "{band} Freq"
+"{band} Gain" = "{band} Gain"
+"{band} Q" = "{band} Q"
+"Frequency response" = "Frequenzgang"
+"High-pass" = "Hochpass"
+
+// MidiEffectProcessors.cpp
+"1/8 Triplet" = "1/8 Triole"
+"1/16 Triplet" = "1/16 Triole"
+"Transpose" = "Transponieren"
+"st" = "HT"
+"Velocity" = "Anschlag"
+"Semitones, +/-2 octaves" = "Halbtöne, ±2 Oktaven"
+"Shift the velocity of all notes" = "Anschlag aller Noten verschieben"
+"Chord" = "Akkord"
+"A chord above every played note" = "Akkord über jeder gespielten Note"
+"Rate" = "Rate"
+"Direction" = "Richtung"
+"Octaves" = "Oktaven"
+"Arpeggio" = "Arpeggio"
+"Note value of the steps, in the project tempo" = "Notenwert der Schritte, im Projekttempo"
+"Order of the held notes" = "Reihenfolge der gehaltenen Noten"
+"Over how many octaves" = "Über wie viele Oktaven"
+"How long each note sounds, in % of the step" = "Wie lange jede Note klingt, in % des Schritts"
+
+// MidiEffects.cpp
+"Major" = "Dur"
+"Minor" = "Moll"
+"Sus4" = "Sus4"
+"Maj7" = "Maj7"
+"Min7" = "Moll7"
+"Dom7" = "Dom7"
+"Power" = "Power"
+"Octave" = "Oktave"
+"Up" = "Aufwärts"
+"Down" = "Abwärts"
+"Up and down" = "Auf und ab"
+"Random" = "Zufällig"
+"As played" = "Wie gespielt"
+
+// SamplerProcessor.cpp
+"Volume" = "Lautstärke"
+"SFZ file not found: {file}" = "SFZ-Datei nicht gefunden: {file}"
+"SFZ file contains no playable regions: {file}" = "SFZ-Datei enthält keine spielbaren Regionen: {file}"
+"No SFZ file loaded. Load... chooses a file." = "Keine SFZ-Datei geladen. Laden… wählt eine Datei."
+"{file}  |  {regions}  |  {voices}" = "{file}  |  {regions}  |  {voices}"
+"{count} region" = "{count} Region"
+"{count} regions" = "{count} Regionen"
+"{count} voice" = "{count} Stimme"
+"{count} voices" = "{count} Stimmen"
+"Choose SFZ instrument" = "SFZ-Instrument wählen"
+"Instrument" = "Instrument"
+"Load..." = "Laden…"
+
+// SubtractiveSynthProcessor.cpp
+"Sine" = "Sinus"
+"Saw" = "Sägezahn"
+"Square" = "Rechteck"
+"Triangle" = "Dreieck"
+"Osc 1 Wave" = "Osz 1 Form"
+"Osc 2 Wave" = "Osz 2 Form"
+"Osc 2 Detune" = "Osz 2 Verstimmung"
+"Osc Mix" = "Osz Mix"
+"Cutoff" = "Cutoff"
+"Resonance" = "Resonanz"
+"Filter Env" = "Filter Env"
+"Amp Attack" = "Amp Attack"
+"Amp Decay" = "Amp Decay"
+"Amp Sustain" = "Amp Sustain"
+"Amp Release" = "Amp Release"
+"Filter Attack" = "Filter Attack"
+"Filter Decay" = "Filter Decay"
+"Filter Sustain" = "Filter Sustain"
+"Filter Release" = "Filter Release"
+"Master" = "Master"
+"Oscillators" = "Oszillatoren"
+"Filter" = "Filter"
+"Filter envelope" = "Filter-Hüllkurve"
+"Amp envelope" = "Amp-Hüllkurve"
+
+// InternalPlugin.cpp
+"Parameters" = "Parameter"
+
+// BandHandles.cpp
+"Drag band: frequency and gain. Mouse wheel: Q. Double-click: gain to 0 dB" = "Band ziehen: Frequenz und Gain. Mausrad: Q. Doppelklick: Gain auf 0 dB"
+
+// Knob.cpp
+"{name} (double-click: default value, Ctrl+drag: fine)" = "{name} (Doppelklick: Standardwert, Strg+Ziehen: fein)"
+
+// Switch.cpp
+"{name} on/off" = "{name} ein/aus"
+
+// PanelView.cpp
+"Included in Pro" = "In Pro enthalten"
+"No parameters." = "Keine Parameter."

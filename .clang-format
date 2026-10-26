@@ -1,0 +1,76 @@
+# Formatierung ist keine Geschmacksfrage: dieses File entscheidet, clang-format setzt um.
+# Grundlage: JUCE-Stil (Allman-Klammern, 4 Leerzeichen), damit unser Code und
+# der Framework-Code gleich aussehen.
+---
+Language: Cpp
+Standard: c++20
+BasedOnStyle: LLVM
+
+# Einrückung
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 120
+AccessModifierOffset: -4
+NamespaceIndentation: None
+IndentCaseLabels: true
+
+# Klammern: Allman (öffnende Klammer auf eigener Zeile), wie JUCE
+BreakBeforeBraces: Allman
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortLambdasOnASingleLine: All
+AllowShortBlocksOnASingleLine: Never
+
+# Leerzeichen
+# JUCE-Stil: Leerzeichen vor nicht-leeren Klammern (foo (x)), keines bei leeren (foo()).
+SpaceBeforeParens: Custom
+SpaceBeforeParensOptions:
+  AfterControlStatements: true
+  AfterFunctionDeclarationName: false
+  AfterFunctionDefinitionName: false
+  AfterForeachMacros: true
+  AfterIfMacros: true
+  BeforeNonEmptyParentheses: true
+SpaceAfterTemplateKeyword: true
+SpaceAfterLogicalNot: true   # JUCE-Stil: if (! isPlaying())
+SpacesInParentheses: false
+SpaceBeforeCpp11BracedList: true
+Cpp11BracedListStyle: false
+
+# Zeiger und Referenzen: am Typ (Type* ptr, Type& ref)
+PointerAlignment: Left
+ReferenceAlignment: Left
+DerivePointerAlignment: false
+
+# Umbrüche
+AlwaysBreakTemplateDeclarations: Yes
+BreakConstructorInitializers: BeforeComma
+ConstructorInitializerIndentWidth: 4
+PackConstructorInitializers: Never
+BinPackArguments: false
+BinPackParameters: false
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: None
+AlignTrailingComments: true
+
+# Includes: Gruppen in fester Reihenfolge (siehe CODING_GUIDELINES.md)
+IncludeBlocks: Regroup
+SortIncludes: CaseSensitive
+IncludeCategories:
+  - Regex: '^"fk/'
+    Priority: 1
+  - Regex: '^<juce_'
+    Priority: 2
+  - Regex: '^<tracktion_'
+    Priority: 2
+  - Regex: '^<catch2/'
+    Priority: 3
+  - Regex: '^<.*\.h>'
+    Priority: 4
+  - Regex: '^<.*'
+    Priority: 5
+
+FixNamespaceComments: true
+...

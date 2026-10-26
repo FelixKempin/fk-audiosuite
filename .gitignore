@@ -1,0 +1,29 @@
+# Build
+build/
+build-*/
+out/
+cmake-build-*/
+compile_commands.json
+
+# IDE
+.vscode/
+.idea/
+.cache/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Projekt-spezifisch
+*.tracktionedit.bak
+/content/downloads/
+
+__pycache__/
+*.pyc
+
+# Auslieferung (dist/README.md)
+/dist/out/
+/dist/tools/
+/dist/dist.env
+/.fk-git-sha

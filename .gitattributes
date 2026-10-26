@@ -1,0 +1,24 @@
+# Zeilenenden: im Repository und beim Auschecken immer LF, auf Linux wie auf Windows. Visual Studio,
+# CMake, PowerShell und Inno Setup lesen LF; Shell-Skripte laufen mit CRLF nicht. Nur Batch-Dateien
+# brauchen CRLF. Gilt unabhängig von core.autocrlf des jeweiligen Rechners.
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Binär, nie umschreiben (text=auto erkennt sie meist, hier sicher).
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.wav binary
+*.flac binary
+*.ogg binary
+*.mp3 binary
+*.aif binary
+*.aiff binary
+*.ttf binary
+*.otf binary
+*.zip binary
+*.fkpack binary
+*.pdf binary

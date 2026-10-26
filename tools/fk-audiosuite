@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# Startet FK Audio Suite als Entwickler (Debug-Build, Plugins aus ~/.vst3 = linux-dev, immer Pro).
+# Läuft schon eine, wird sie erst beendet. Log: ~/.cache/fk-audiosuite/daw.log
+#
+#   fk-audiosuite          (neu) starten
+#   fk-audiosuite stop     beenden
+#   fk-audiosuite log      Log mitlesen
+set -euo pipefail
+
+repo="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+binary="$repo/build/linux-debug/src/app/FKAudioSuite_artefacts/Debug/FK Audio Suite"
+logDir="$HOME/.cache/fk-audiosuite"
+log="$logDir/daw.log"
+
+stop() {
+    if pgrep -f "Debug/FK Audio Suite$" > /dev/null; then
+        pkill -TERM -f "Debug/FK Audio Suite$"
+        for _ in $(seq 20); do
+            pgrep -f "Debug/FK Audio Suite$" > /dev/null || return 0
+            sleep 0.25
+        done
+        pkill -KILL -f "Debug/FK Audio Suite$" || true
+    fi
+}
+
+case "${1:-start}" in
+    stop)
+        stop
+        echo "FK Audio Suite beendet."
+        ;;
+    log)
+        exec tail -f "$log"
+        ;;
+    start)
+        if [[ ! -x "$binary" ]]; then
+            echo "Nicht gebaut: $binary" >&2
+            echo "Bauen: cmake --build --preset linux-debug --target FKAudioSuite (in $repo)" >&2
+            exit 1
+        fi
+        stop
+        mkdir -p "$logDir"
+        [[ -f "$log" ]] && mv "$log" "$log.previous"
+        cd "$repo"
+        nohup "$binary" > "$log" 2>&1 &
+        disown
+        echo "FK Audio Suite gestartet (Log: $log)."
+        ;;
+    *)
+        echo "Aufruf: fk-audiosuite [start|stop|log]" >&2
+        exit 2
+        ;;
+esac

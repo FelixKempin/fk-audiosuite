@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=FK Audio Suite
+GenericName=Digital Audio Workstation
+Comment=Musik aufnehmen, arrangieren und mischen
+Exec=fk-audio-suite %F
+Icon=fk-audio-suite
+Terminal=false
+Categories=AudioVideo;Audio;Midi;Sequencer;
+MimeType=application/x-tracktion-edit;
+Keywords=DAW;Audio;MIDI;Recording;Music;

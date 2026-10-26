@@ -1,0 +1,9 @@
+# Mitgelieferte Lite-Plugins: fertige Release-Pakete aus dem öffentlichen Download-Bucket, mit
+# Prüfsumme festgeschrieben. dist/fetch-plugins.sh und .ps1 laden sie und legen die VST3-Bundles nach
+# dist/out/plugins/. Neue Version: Zeile ändern, SHA-256 aus der .sha256-Datei neben dem Paket.
+#
+# base <Adresse des Buckets>
+# <plattform> <Pfad im Bucket> <SHA-256>
+base https://fk-releases.fsn1.your-objectstorage.com
+linux fk-rig/stable/1.0.0/FK-Rig-1.0.0-linux-x64-vst3.tar.gz c46994f16e7ff2c69964da2065accf34db2999b2a1fe28e5c338eec79c1797cd
+windows fk-rig/stable/1.0.0/FK-Rig-1.0.0-windows-x64-portable.zip 80bc9e43001d72ff02b9bb2a0e3234cf47138446bcf5163b4535b9982f1f9e22

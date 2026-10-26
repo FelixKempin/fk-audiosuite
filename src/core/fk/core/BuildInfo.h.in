@@ -1,0 +1,17 @@
+#pragma once
+
+// Von CMake erzeugt (src/core/fk/core/BuildInfo.h.in): Version und Herkunft dieses Builds.
+// Nicht von Hand ändern; die Werte setzen project(VERSION) und die dist-Skripte.
+
+namespace fk::core::buildInfo
+{
+
+inline constexpr const char* version = "@PROJECT_VERSION@";
+inline constexpr const char* gitSha = "@FK_GIT_SHA@";
+inline constexpr const char* buildDate = "@FK_BUILD_DATE@";
+inline constexpr const char* channel = "@FK_RELEASE_CHANNEL@";   ///< dev, beta oder stable
+inline constexpr const char* platform = "@FK_PLATFORM_NAME@";    ///< linux-x64 oder windows-x64
+inline constexpr const char* updateUrl = "@FK_UPDATE_URL@";      ///< latest.json; leer = keine Update-Hinweise
+inline constexpr const char* websiteUrl = "@FK_WEBSITE_URL@";    ///< ohne / am Ende, z. B. https://fk-audiosuite.com
+
+} // namespace fk::core::buildInfo
