@@ -5,5 +5,5 @@
 # base <Adresse des Buckets>
 # <plattform> <Pfad im Bucket> <SHA-256>
 base https://fk-releases.fsn1.your-objectstorage.com
-linux fk-rig/stable/1.0.0/FK-Rig-1.0.0-linux-x64-vst3.tar.gz c46994f16e7ff2c69964da2065accf34db2999b2a1fe28e5c338eec79c1797cd
-windows fk-rig/stable/1.0.0/FK-Rig-1.0.0-windows-x64-portable.zip 80bc9e43001d72ff02b9bb2a0e3234cf47138446bcf5163b4535b9982f1f9e22
+linux fk-rig/stable/1.1.0/FK-Rig-1.1.0-linux-x64-vst3.tar.gz ac0978c9e02eb0edfd9f9b1231794480e313e5baa0960435d0bce92ee658380d
+windows fk-rig/stable/1.1.0/FK-Rig-1.1.0-windows-x64-portable.zip 90bd28036c0d9a1c1be023187615d4c8a931d3995bd539b19e4e433f38e77523

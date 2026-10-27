@@ -22,6 +22,17 @@ namespace fk::ui
 
 namespace
 {
+/// Markenhinweise für das About-Fenster. Die ASIO-Zeile verlangt der Steinberg-ASIO-Lizenzvertrag
+/// (§ 3) in jedem Build mit ASIO; Wortlaut aus dem Vertrag, deshalb nicht übersetzt.
+juce::String trademarkNotice()
+{
+    juce::String text ("VST is a registered trademark of Steinberg Media Technologies GmbH.");
+#if JUCE_ASIO
+    text << "\nASIO is a trademark of Steinberg Media Technologies GmbH, registered in Europe and other countries.";
+#endif
+    return text;
+}
+
 constexpr auto editFileWildcard = "*.tracktionedit";
 constexpr int toolRadioGroup = 1;
 
@@ -2561,7 +2572,8 @@ void ProjectComponent::menuItemSelected (int menuItemId, int)
                                                           { "channel", juce::String (core::buildInfo::channel) },
                                                           { "sha", juce::String (core::buildInfo::gitSha) },
                                                           { "date", juce::String (core::buildInfo::buildDate) },
-                                                          { "platform", juce::String (core::buildInfo::platform) } }));
+                                                          { "platform", juce::String (core::buildInfo::platform) } })
+                                                        + "\n\n" + trademarkNotice());
             break;
         default:
             break;

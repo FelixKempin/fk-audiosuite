@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.25)
 
 project(FKAudioSuite
-  VERSION 0.7.0 # einzige Quelle der Version (dist/README.md §Version)
+  VERSION 0.7.1 # einzige Quelle der Version (dist/README.md §Version)
   DESCRIPTION "Moderne Open-Source-DAW für Linux und Windows"
   LANGUAGES C CXX)
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.1 beta (2026-10-28)
+
+- **FK Rig Lite 1.1.0 mitgeliefert:** deutlich besserer Klang der Amps (Tweed 59, British 800),
+  Presets wechseln die Effektkette jetzt richtig, Pedal-Beschriftungen überlappen nicht mehr.
+- **About:** nennt die Marken VST und, unter Windows, ASIO (Steinberg Media Technologies GmbH).
+
 ## 0.7.0 beta (unveröffentlicht)
 
 Erste Version mit öffentlichem Quellcode (GPLv3). Frühere Betas (0.5, 0.6) waren nur als Programm
