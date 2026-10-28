@@ -34,8 +34,8 @@ FINDINGS = MANUAL / "FINDINGS.md"
 EXPORT = ROOT / "build" / "manual"
 EXPORT_VENV = ROOT / "build" / "manual-venv"
 EXPORT_PACKAGES = ["markdown==3.11.1", "weasyprint==70.0"]
-FINDING_HEADING = re.compile(r"^## (F-\d{3}) · ([^·]+) · (.+)$", re.M)
-FINDING_MARKER = re.compile(r"FIX (F-\d{3})")
+FINDING_HEADING = re.compile(r"^## (F-\d{3,4}) · ([^·]+) · (.+)$", re.M)
+FINDING_MARKER = re.compile(r"FIX (F-\d{3,4})")
 
 
 @dataclass
