@@ -401,7 +401,8 @@ The transport bar shows the tempo (23) and the time signature (24) at the **proj
 2. Type the new tempo, for example `128` or `92.5` (a decimal comma also works; the unit **BPM** may stay in the text).
 3. Press **Enter**.
 
-The tempo is limited to 20–400 BPM: a larger or smaller value is set to the limit. An entry without a number, or 0, is ignored and the old value comes back. History: **Change tempo**.
+<!-- FIX F-1202: limit and message may change -->
+The tempo is limited to 20–300 BPM: a larger or smaller value is set to the limit without a message. An entry without a number, or 0, is ignored and the old value comes back. History: **Change tempo**.
 
 **To change the time signature:**
 

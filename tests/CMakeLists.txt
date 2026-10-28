@@ -88,7 +88,10 @@ if(FK_BUILD_APP)
     manual/ArrangingScenes.cpp
     manual/DrumEditorScenes.cpp
     manual/ListEditorScenes.cpp
-    manual/SampleEditorScenes.cpp)
+    manual/SampleEditorScenes.cpp
+    manual/SignatureTrackScenes.cpp
+    manual/AutomationScenes.cpp
+    manual/MixConsoleScenes.cpp)
   list(APPEND FK_TEST_LIBS fk::services fk::engine fk::ui)
 endif()
 

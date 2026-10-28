@@ -28,9 +28,9 @@ Chapters are listed in the order a new user needs them. Chapters without a link 
 | 9 | [Drum Editor](drum-editor.md) | written |
 | 10 | [List Editor](list-editor.md) | written |
 | 11 | [Sample Editor](sample-editor.md) | written |
-| 12 | Signature track: tempo, time signature, key | planned |
-| 13 | Automation | planned |
-| 14 | MixConsole: channels, inserts, sends, routing | planned |
+| 12 | [Signature track](signature-track.md): tempo, time signature, key | written |
+| 13 | [Automation](automation.md) | written |
+| 14 | [MixConsole](mixconsole.md): channels, inserts, sends, routing | written |
 | 15 | Instruments and effects: plugins, plugin manager, instrument browser | planned |
 | 16 | Media browser and content | planned |
 | 17 | Track bake (freeze) | planned |

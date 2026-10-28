@@ -373,6 +373,7 @@ Typen: **Bug** (falsches Verhalten), **Unstimmigkeit** (verschiedene Stellen ver
 - **Code:** `src/ui/fk/ui/TrackLane.cpp:873-876` (`TrackLane::reportError` schreibt nur ins Log, ruft `onError` nicht); betroffen sind Trimmen/Strecken (`:584-587`), Fade ziehen (`:597-598`), Split-, Radier-, Mute- und Kleber-Werkzeug (`:376-420`), Take wählen/Comping (`:555-560`, `:710-730`), Reset fades (`:695-696`). `ArrangeView::reportError` (`src/ui/fk/ui/ArrangeView.cpp:1380-1387`) zeigt dagegen eine Meldung.
 - **Beobachtung:** Auf einer gebackenen Spur passiert beim Trimmen, Faden, Teilen, Radieren usw. einfach nichts. Auch „Stretching works from a quarter up to four times the length.“ und „The clip follows the project tempo …“ beim Alt+Ziehen sieht der Nutzer nie. Dieselbe Aktion über Menü oder Taste zeigt die Meldung.
 - **Erwartung:** `TrackLane::reportError` ruft zusätzlich `onError (services::errorText (error))`.
+- **Ergänzung (Kapitel 13):** Automationslage gleiches Muster: `src/ui/fk/ui/AutomationLane.cpp:256` schreibt Fehler nur ins Log (automation.md beschreibt „no message appears“).
 - **Handbuch:** arranging.md §21 (Note zu stummen Mausbearbeitungen); recording.md §11.4 (Take-Funktionen: wählen, Comping, Verteilen, Aufräumen).
 
 ## F-702 · UX · Doppelklick legt mit jedem Werkzeug einen MIDI-Clip an
@@ -766,3 +767,265 @@ Typen: **Bug** (falsches Verhalten), **Unstimmigkeit** (verschiedene Stellen ver
 - **Code:** `src/ui/fk/ui/ListEditor.cpp:217` (jede Zellenänderung heißt „List Editor“, der Key Editor benennt die Aktion); Kopfzeile `:89` „{name} · {notes}“ gegen `src/ui/fk/ui/KeyEditor.cpp:548` „{name}  ({notes})“.
 - **Erwartung:** Undo-Namen nach Spalte („Move note“, „Transpose note“, „Change note length“, „Change velocity“); eine gemeinsame Form der Kopfzeile.
 - **Handbuch:** list-editor.md §11 (erster Absatz), §2 (Tabelle Zeile 1).
+
+## F-1201 · Bug · Tonart-Blase zeigt beim neuen Tonartwechsel die Tonart eines späteren Wechsels
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/SignatureTrack.cpp` `showKeyChooser`: nach `signature.insertKey` wird `keyPoints[index]` gelesen; `keyPoints` wird erst asynchron aktualisiert (`SignatureService` meldet über `AsyncUpdater`). Gibt es einen späteren Wechsel, steht an `index` noch dieser.
+- **Beobachtung:** Die Blase startet mit Grundton und Skala des späteren Wechsels. Ändert man nur eine Liste, wird der falsche Wert der anderen mit übernommen.
+- **Erwartung:** Werte direkt vom Service holen (`getKeyPoints()[index]`), nicht aus der zwischengespeicherten Liste.
+- **Handbuch:** signature-track.md §6 (Inserting a key change).
+
+## F-1202 · Bug · Tempo über 300 BPM wird still auf 300 begrenzt, Code nennt 400
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/SignatureService.cpp:12` und `src/services/fk/services/TimelineService.cpp:14` (`maxTempoBpm = 400.0`); Tracktion `TempoSetting::set` begrenzt auf `maxBPM = 300.0` (`tracktion_TempoSetting.h:45`).
+- **Beobachtung:** 350 in der Transportleiste ergibt 300 BPM, ohne Meldung.
+- **Erwartung:** Grenze einheitlich 300 (Konstante aus `te::TempoSetting::maxBPM`), Hinweis bei Begrenzung.
+- **Handbuch:** signature-track.md §3.7, Quick reference; transport.md §12.
+
+## F-1203 · Bug · Tempopunkt waagerecht ziehen ändert auch das Tempo
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/SignatureTrack.cpp` `mouseDrag`: `tempoDrag->bpm = bpmForY (event.position.y)` bei jeder Bewegung; Treffer in 8 px Umkreis, die Lage hat nur 10 px nutzbare Höhe für 40–200 BPM.
+- **Beobachtung:** Wer einen Punkt seitlich verschiebt, ändert fast immer das Tempo, wenige Pixel neben der Mitte um Dutzende BPM (Punkt 90 BPM, Griff 1 px darunter ergibt etwa 72 BPM).
+- **Erwartung:** Tempo erst bei senkrechtem Ziehen ändern (Schwelle oder Achsensperre) oder relativ zum Startpunkt rechnen.
+- **Handbuch:** signature-track.md §3.4.
+
+## F-1204 · UX · Tempowerte der Punkte nicht eintippbar, Ziehen sehr grob
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/SignatureTrack.cpp` (`laneHeight` = 18, `bpmForY`, `refresh`: Bereich 40–200 BPM ± 20 um die Punkte).
+- **Beobachtung:** Tempo eines Punkts nur per Ziehen, rund 16 BPM je Pixel; über den sichtbaren Bereich hinaus nur in Schritten von 20 BPM. Exakte Werte gibt es nur für den ersten Punkt über die Transportleiste.
+- **Erwartung:** Doppelklick oder Kontextmenü mit BPM-Eingabe, feineres Ziehen (z. B. Shift = 0,1 BPM, relativ) oder eine höhere Tempolage.
+- **Handbuch:** signature-track.md §3.3.
+
+## F-1205 · Unstimmigkeit · Drei verschiedene Regeln für Taktarten
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/SignatureTrack.cpp` `commonSignatures()` (nur 4/4, 3/4, 2/4, 6/8, 5/4, 7/8, 12/8, 9/8); `src/services/fk/services/TimelineService.cpp` `setTimeSignature` (1–32, Nenner 2/4/8/16, nur Takt 1); `src/services/fk/services/SignatureService.cpp` `insertTimeSignature`/`setTimeSignature` (Zähler und Nenner je 1–32, also auch 5/3).
+- **Beobachtung:** Taktartwechsel im Song gehen nur mit den acht Menüeinträgen; 5/8, 7/4 oder 2/2 lassen sich nur am Projektanfang eintippen. Der Service nimmt Nenner an, die die Transportleiste ablehnt.
+- **Erwartung:** Menü um „Other…“ mit Eingabe erweitern, eine gemeinsame Prüfung im Service.
+- **Handbuch:** signature-track.md §5.
+
+## F-1206 · Unstimmigkeit · Tempopunkt verschieben oder entfernen lässt Clips auf ihrer Sekunde
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/SignatureService.cpp` `moveTempoPoint` (`moveTempoStart (…, false)`) und `removeTempoPoint` (`removeTempo (index, false)`); `setTempoPoint` nutzt `setBpm`/`setCurve`, die den Edit umrechnen.
+- **Beobachtung:** Tempo oder Sprung/Rampe ändern hält Clips, Automation, Marker und Locatoren im Takt. Einen Punkt verschieben oder löschen lässt sie an ihrer Zeit; danach liegen sie auf anderen Takten.
+- **Erwartung:** Auch beim Verschieben und Entfernen umrechnen (`removeTempo (index, true)` bzw. `EditTimecodeRemapperSnapshot` um `moveTempoStart`).
+- **Handbuch:** signature-track.md §4 (Note).
+
+## F-1207 · UX · Taktart- und Tonartwechsel lassen sich nicht verschieben
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/SignatureTrack.cpp` (Ziehen nur für Tempopunkte); `SignatureService::moveKey` existiert, wird nicht benutzt; für Taktarten kein `moveTimeSignature` (Tracktion hat `moveTimeSigStart`).
+- **Beobachtung:** Um einen Wechsel zu versetzen, muss man ihn löschen und neu setzen.
+- **Erwartung:** Wechsel waagerecht ziehen (Taktart taktweise, Tonart am Raster), ein Undo-Schritt.
+- **Handbuch:** signature-track.md §5 und §6 („Moving“).
+
+## F-1208 · UX · Klick in die Tonart-Lage legt sofort einen Wechsel an
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/SignatureTrack.cpp` `showKeyChooser`: `insertKey` vor dem Öffnen der Blase.
+- **Beobachtung:** Ein Klick erzeugt einen Tonartwechsel mit der bisherigen Tonart, auch wenn man die Blase ohne Auswahl schließt; jeder neue Wechsel braucht mindestens zwei Undo-Schritte. Das Taktartmenü legt erst bei Auswahl an.
+- **Erwartung:** Wechsel erst bei der ersten Auswahl anlegen (oder beim Schließen ohne Änderung entfernen), Änderungen in der Blase zu einem Schritt zusammenfassen.
+- **Handbuch:** signature-track.md §6, §9.
+
+## F-1209 · Unstimmigkeit · Key Editor kennt nur Taktart des Projektanfangs und Tonart am Clipanfang
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/NoteGrid.cpp:175` und `:526` (`timeline.getTimeSignature()` = erste Taktart, für Taktlinien und Akkordlänge); `src/ui/fk/ui/KeyEditor.cpp:563` (`getKeyAt (clip->startSeconds)`).
+- **Beobachtung:** Nach einem Taktartwechsel stimmen die Taktlinien im Key Editor nicht mit dem Arrangement überein, und Akkorde werden einen Takt der Anfangstaktart lang. Ein Tonartwechsel mitten im Clip ändert weder Abdunklung noch Akkordauswahl.
+- **Erwartung:** Taktlinien aus der Signaturspur, Tonart je Position.
+- **Handbuch:** signature-track.md §5 (Note) und §6 (Note); key-editor.md §2/§15 (nach dem Fix ergänzen).
+
+## F-1210 · Bug · Zweiter Tempopunkt auf demselben Schlag
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/SignatureTrack.cpp` `mouseDown` (Treffer nur in 8 px Umkreis, sonst `insertTempoPoint`); Tracktion `TempoSequence::insertTempo` rundet auf den Schlag und prüft nicht auf einen vorhandenen Punkt.
+- **Beobachtung:** Ein Klick neben einen Punkt, der auf denselben Schlag gerundet wird, legt einen zweiten Punkt genau darauf; einer verdeckt den anderen.
+- **Erwartung:** Liegt am gerundeten Schlag schon ein Punkt, diesen greifen statt neu anlegen (Prüfung in `SignatureService::insertTempoPoint`). Gleiches Muster wie F-903 (Drum-Editor).
+- **Handbuch:** signature-track.md §3.2.
+
+## F-1211 · UX · Tempopunkt in Zeit und Tempo ziehen ergibt zwei Undo-Schritte
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/SignatureTrack.cpp` `mouseUp`: `setTempoPoint` („Change tempo“) und danach `moveTempoPoint` („Move tempo point“), jeder mit eigenem `beginUndoStep`.
+- **Beobachtung:** Eine Mausbewegung braucht zweimal Undo; durch F-1203 trifft das fast jedes seitliche Ziehen.
+- **Erwartung:** Ein Schritt je Ziehen.
+- **Handbuch:** signature-track.md §9.
+
+## F-1301 · UX · Automationspunkte nur einzeln bearbeitbar, kein „Alle löschen“, keine Werteingabe
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/AutomationService.cpp:310-318` (`clearPoints`, Undo „Delete automation“) wird nirgends in der UI aufgerufen; `src/ui/fk/ui/AutomationLane.cpp:177-254` kennt nur Einzelpunkte (Klick, Ziehen, Doppel-/Rechtsklick); Wert nur beim Ziehen (`:152`).
+- **Beobachtung:** Eine Kurve lässt sich nur Punkt für Punkt löschen. Punkte lassen sich nicht auswählen, verschieben, kopieren oder einfügen, auch nicht über einen Bereich. Den Wert sieht man nur beim Ziehen; eintippen geht nicht. „−“ blendet nur die Lage aus.
+- **Erwartung:** Kontextmenü der Lage mit „Delete automation“, Mehrfachauswahl per Rechteck mit Entf/Verschieben/Kopieren, Wert als Tooltip beim Überfahren, Doppelklick auf einen Punkt öffnet die Werteingabe (Löschen bleibt Rechtsklick).
+- **Handbuch:** automation.md §4, §5, §6.
+
+## F-1302 · Unstimmigkeit · Kurvenform nicht einstellbar, Lage zeichnet immer gerade Linien
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/AutomationService.cpp:264` (`addPoint` setzt `curve` immer 0); `src/ui/fk/ui/AutomationLane.cpp:120` (`lineTo` ohne `point.curve`); Tracktion schreibt bei Aufnahme diskreter Parameter `curve = 1.0` (`tracktion_AutomationRecordManager.cpp:326`, `:491`).
+- **Beobachtung:** `AutomationPointInfo::curve` wird geliefert, aber nie gezeichnet oder angeboten. Aufgenommene Kurven diskreter Parameter springen im Klang, die Lage zeigt eine Rampe.
+- **Erwartung:** Kurve gemäß `curve` zeichnen (Stufe/Biegung); Biegung z. B. per Alt+Ziehen auf der Linie einstellbar.
+- **Handbuch:** automation.md §5.
+
+## F-1303 · Unstimmigkeit · Automation folgt Clip- und Bereichsbearbeitung nur teilweise
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/ClipService.cpp:662-690` (`deleteRange`: entfernt nur Clips, „close gap“ verschiebt nur Clips) gegen `:693-718` (`insertSilence` über `te::insertSpaceIntoEdit`, das auch die Kurven verschiebt); Clip verschieben/kopieren fasst Automation nicht an.
+- **Beobachtung:** Nach **Remove (close gap)** passt die Automation ab dem Bereich nicht mehr zu den Clips; **Insert silence** verschiebt sie dagegen mit. **Delete (leave gap)** lässt die Kurve im Bereich stehen.
+- **Erwartung:** Bereichsfunktionen behandeln Kurven der abgedeckten Spuren wie Clips; optional „Automation folgt Clips“ wie in Cubase.
+- **Handbuch:** automation.md §11 (Tabelle, Tip).
+
+## F-1304 · Bug · Duplizierte Spur: Automationslagen zeigen keinen Parameter
+
+- **Status:** offen (aus dem Code abgeleitet, im Lauf noch nicht geprüft)
+- **Code:** `src/services/fk/services/TrackService.cpp:801` (`edit->copyTrack` → `EditItemID::remapIDs` vergibt neue Plugin-IDs); die Lagen stehen als „<Plugin-ID>/<Parameter-ID>“ in `fkAutomationLanes` (`src/services/fk/services/AutomationService.cpp:75`, `:152`) und werden nicht umgeschrieben.
+- **Beobachtung:** Die Kopie hat Kurven und Modus, ihre Lagen verweisen aber auf die Plugins der Originalspur und zeigen **No parameter**.
+- **Erwartung:** Nach `copyTrack` die IDs in `fkAutomationLanes` über die Zuordnung aus `remapIDs` umschreiben.
+- **Handbuch:** automation.md §11 (Note zur duplizierten Spur).
+
+## F-1305 · UX · Automationsmodus nur in der ersten Lage und nur bei aufgeklappten Lagen sichtbar
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/AutomationHeader.cpp:52` (`modeBox` nur bei `laneIndex == 0`); weder `TrackHeader` noch Inspector zeigen den Modus.
+- **Beobachtung:** Ob eine Spur auf Touch/Latch/Write steht (und bei eingeschaltetem Schreiben aufnimmt), sieht man nur bei aufgeklappten Lagen.
+- **Erwartung:** Modus-Anzeige im Spurkopf (z. B. Farbe/Buchstabe am Automation-Button) oder im Inspector; Moduswahl auch ohne aufgeklappte Lagen.
+- **Handbuch:** automation.md §2, §7; Szene `AutomationScenes.cpp` (Bild `automation/overview`).
+
+## F-1306 · Text · Tooltips sagen „automation track“, Verlauf und Handbuch „automation lane“
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/TrackHeader.cpp:28` („Automation track on/off“), `src/ui/fk/ui/AutomationHeader.cpp:22`, `:23`, `:25` gegen Undo-Namen „Add automation lane“, „Remove automation lane“ (`AutomationService` `addLane`/`removeLane`).
+- **Erwartung:** einheitlich „automation lane“ („Automation lanes on/off“, „Add an automation lane“, „Remove this automation lane“, „Parameter shown in this lane“).
+- **Handbuch:** automation.md §2; tracks.md §4. Szenen `AutomationScenes.cpp` und `TracksScenes.cpp` suchen über diese Tooltip-Anfänge und sind mitzuziehen.
+
+## F-1307 · UX · Write springt nach einem Durchgang still auf Latch
+
+- **Status:** offen
+- **Code:** `tracktion_AutomationRecordManager.cpp:337-339` (`punchOut`: write → latch); FK übernimmt das ohne Hinweis.
+- **Beobachtung:** Nach einem Write-Durchgang steht die Spur auf **Latch**; der Tooltip („Write: writes from play start“) erwähnt das nicht.
+- **Erwartung:** Write beibehalten (wie Cubase) oder im Tooltip klar sagen; mindestens Hinweis beim Umschalten.
+- **Handbuch:** automation.md §7.
+
+## F-1308 · Unstimmigkeit · Automationslage bedient sich anders als die Controller-Lanes im Key Editor
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/AutomationLane.cpp:177-234` gegen `src/ui/fk/ui/ControllerLane.cpp:247-330`.
+- **Beobachtung:** Controller-Lane: Ziehen zeichnet eine Punktreihe je Rasterschritt, Klick setzt am Rasterschritt links der Maus, Raster immer aktiv, Wert links, Doppelklick tut nichts. Automationslage: Ziehen setzt einen Punkt und verschiebt ihn, Raster nur mit Snap und zur nächsten Linie, Wert neben dem Punkt, Doppelklick löscht. Doppelklick auf leere Fläche setzt und löscht gleich wieder (zwei Verlaufseinträge).
+- **Erwartung:** gemeinsame Bedienung beider Lanes; Doppelklick auf leere Fläche ohne Effekt.
+- **Handbuch:** automation.md §6.
+
+## F-1309 · Text · Send-Parameter tragen den alten Namen der FX-Spur
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/SendService.cpp:44` (`setAuxBusName` nur beim Anlegen); Tracktion benennt den Send „S:<Busname>“ (`tracktion_AuxSend.cpp:62-70`); `AutomationService::infoFor` nutzt `plugin->getName()`.
+- **Beobachtung:** In der Parameterliste heißt ein Send z. B. **S:FX 1: Send level**. Nach Umbenennen der FX-Spur bleibt der alte Name; „S:“ ist unklar.
+- **Erwartung:** Busnamen beim Umbenennen nachführen und z. B. „Send to FX 1: Level“ anzeigen.
+- **Handbuch:** automation.md §1.
+
+## F-1310 · UX · Automationsaufnahme ohne benannten Undo-Schritt
+
+- **Status:** offen (aus dem Code abgeleitet, im Lauf noch nicht geprüft)
+- **Code:** Weder `src/services/fk/services/TransportService.cpp:29-33` (`play`) noch `AutomationService` beginnen vor dem Schreiben einen Undo-Schritt; Tracktion schreibt in die gerade offene Transaktion.
+- **Beobachtung:** Aufgenommene Automation landet im zuletzt begonnenen Schritt oder als „Change“; Undo kann mehr oder weniger entfernen als erwartet. Verwandt mit F-604.
+- **Erwartung:** Bei Play-Start mit eingeschaltetem Schreiben (oder beim ersten Punch-in) einen Schritt „Record automation“ beginnen.
+- **Handbuch:** automation.md §9, §12.
+
+## F-1401 · Unstimmigkeit · Kanalzug zeigt vier Insert-Slots, Inspector acht
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ChannelStrip.h:25` (`numInsertSlots = 4`) gegen `src/ui/fk/ui/Inspector.h:35` (`numInsertSlots = 8`); `ChannelStrip::refresh` füllt nur die ersten vier.
+- **Beobachtung:** Inserts 5–8 arbeiten, sind in der MixConsole aber unsichtbar und nur im Inspector bedienbar.
+- **Erwartung:** gleiche Slotzahl (8) im Kanalzug, notfalls rollbar oder mit Hinweis „+n“.
+- **Handbuch:** mixconsole.md §3, §4.4, §16; Szene `MixConsoleScenes.cpp` (Bilder `mixconsole/overview`, `mixconsole/insert-slots`).
+
+## F-1402 · Bug · Klick in die linke obere Ecke eines Insert-Slots stürzt ab (bad_function_call)
+
+- **Status:** offen (im Code bestätigt, nicht ausprobiert)
+- **Code:** `src/ui/fk/ui/InsertSlot.cpp:35-41` (`bakeMarkArea()` liefert ohne Rückruf ein leeres Rechteck), `:107-109` (`bakeMarkArea().expanded (2)` = (-2,-2,4,4) enthält die Punkte 0..1/0..1; dann wird `onBakeMarkClicked()` ohne Prüfung gerufen).
+- **Beobachtung:** In der MixConsole ist `onBakeMarkClicked` nie gesetzt, im Inspector bei leeren Slots nicht. Ein Linksklick in die obersten zwei Pixel links eines solchen Slots ruft eine leere `std::function` auf: `std::bad_function_call`, Absturz.
+- **Erwartung:** `if (onBakeMarkClicked != nullptr && ! bakeMarkArea().isEmpty() && …)`.
+- **Handbuch:** mixconsole.md §4 (keine Textänderung).
+
+## F-1403 · UX · Kanalzug: Pan, Fader, M, S, Ausgang und Slots ohne Tooltip, Pan ohne Wertanzeige
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ChannelStrip.cpp` setzt nur für Trim (`:54`) und Phase (`:68`) einen Tooltip; `panSlider`, `volumeSlider`, `muteButton`/`soloButton` (`:29-30`), `outputBox`, `nameLabel` und `InsertSlot` haben keinen, ebenso der Master-Fader (`src/ui/fk/ui/MixConsole.cpp:31-45`). Pan: `NoTextBox` ohne `setPopupDisplayEnabled` (Trim hat es).
+- **Beobachtung:** Wie F-105/F-609 für Spurkopf und Inspector. Die Pan-Stellung lässt sich nirgends als Zahl ablesen.
+- **Erwartung:** Tooltips; Pan mit Popup-Wert wie Trim. Zusammen mit F-105/F-609 beheben.
+- **Handbuch:** mixconsole.md §3 (Absatz „Tooltips“), §8.
+
+## F-1404 · Bug · Ziehen am Send-Regler erzeugt einen Undo-Schritt je Zwischenwert
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/SendRow.cpp:27-32` ruft bei jeder Wertänderung `onLevelChanged` → `SendService::setSendLevel`, das jedes Mal `beginUndoStep (TRANS ("Send level"))` beginnt (`src/services/fk/services/SendService.cpp:121`). Gleich im Inspector.
+- **Beobachtung:** Ein Zug am Send-Regler legt Dutzende Schritte „Send level“ an; Ctrl+Z nimmt nur ein Stück zurück. Auch das Mausrad legt je Raster einen Schritt an.
+- **Erwartung:** Ein Schritt je Geste (onDragStart: Schritt beginnen, Werte ohne neuen Schritt setzen).
+- **Handbuch:** mixconsole.md §6 (Note), §17.
+
+## F-1405 · UX · Trim wirkt erst beim Loslassen
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ChannelStrip.cpp:55-64` und `src/ui/fk/ui/Inspector.cpp:233-243` (`onValueChange` setzt den Wert nur ohne gedrückte Maustaste, sonst erst `onDragEnd`).
+- **Beobachtung:** Beim Ziehen bewegen sich Knopf und Wert, zu hören ist der alte Pegel. Gain Staging nach Gehör geht so nicht.
+- **Erwartung:** Wert live setzen und den Undo-Schritt „Trim“ nur einmal je Geste beginnen.
+- **Handbuch:** mixconsole.md §7 (Note).
+
+## F-1406 · Unstimmigkeit · Klick auf gebackenen Insert: verschiedene Meldungen in MixConsole und Inspector
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/Inspector.cpp:810` („This insert is baked. To edit it, first use "Unbake" (Inspector or track header).“) gegen `src/ui/fk/ui/ChannelStrip.cpp:179-183` (öffnet ohne Prüfung; `PluginService::createEditor` meldet über `bakeLock::lockedError`, `src/services/fk/services/BakeLock.cpp:45-57`).
+- **Erwartung:** eine Meldung an beiden Stellen (z. B. die aus BakeLock, sie nennt auch Gruppen).
+- **Handbuch:** mixconsole.md §4 (Baked inserts), §16.
+
+## F-1407 · UX · Sends verkleinern den Fader, MixConsole rollt nicht senkrecht
+
+- **Status:** offen (laut Layout-Rechnung, im Bild noch nicht geprüft)
+- **Code:** `src/ui/fk/ui/ChannelStrip.cpp:222-270` (`resized`: jede Send-Zeile nimmt 22 px oben weg, der Fader bekommt den Rest); `src/ui/fk/ui/MixConsole.cpp:35` (`setScrollBarsShown (false, true)`), `:174-186`.
+- **Beobachtung:** Bei der Standardhöhe der unteren Zone bleiben ohne Sends gut 60 px für Fader und Wertfeld. Ab etwa drei FX-Spuren ist der Fader kaum noch bedienbar; auch das Meter schrumpft.
+- **Erwartung:** Mindesthöhe für den Fader, Sends/Inserts in einem rollbaren Bereich oder senkrechtes Rollen der MixConsole.
+- **Handbuch:** mixconsole.md §3; Szene `MixConsoleScenes.cpp` (Bilder `mixconsole/overview`, `mixconsole/channel-strip`).
+
+## F-1408 · UX · Klick auf einen Kanalzug wählt die Spur nicht aus
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ChannelStrip.h/.cpp` ohne Maus-Behandlung und Auswahl-Rückruf; `nameLabel` nicht editierbar.
+- **Beobachtung:** Arrangement-Auswahl und Inspector bleiben bei einer anderen Spur; die ausgewählte Spur ist im Kanalzug nicht markiert.
+- **Erwartung:** Klick auf Name oder freie Fläche wählt die Spur, ausgewählter Kanalzug hervorgehoben; Doppelklick auf den Namen benennt um.
+- **Handbuch:** mixconsole.md §3 (Note).
+
+## F-1409 · UX · Inserts lassen sich weder verschieben noch ersetzen
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/InsertSlot.cpp` (`showContextMenu` nur Bypass/Activate, Remove, Sidechain, Presets; kein Drag-and-drop); `src/services/fk/services/PluginService.h` ohne Umsortieren/Ersetzen; `insertPlugin` hängt immer hinten an, egal welcher leere Slot geklickt wurde.
+- **Beobachtung:** Um die Reihenfolge zu ändern, muss man Effekte entfernen und neu einsetzen (Einstellungen gehen verloren, außer über Presets). Gilt für MixConsole und Inspector.
+- **Erwartung:** Slots per Ziehen umsortieren (Alt = kopieren) und „Replace“ im Kontextmenü.
+- **Handbuch:** mixconsole.md §4.3.
+
+## F-1410 · UX · Master-Kanal ohne Inserts, Mute und Ausgangswahl
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/MixConsole.cpp:37-56` (Master nur Label, Fader, Meter); `src/services/fk/services/MixerService.h` kennt am Master nur die Lautstärke; `PluginService::insertPlugin` nur für Spuren.
+- **Beobachtung:** Effekte auf der Summe gehen nur über eine Gruppe, in die alle Spuren geroutet werden. Der Master lässt sich nicht stummschalten.
+- **Erwartung:** Insert-Slots und Mute am Master.
+- **Handbuch:** mixconsole.md §14.
+
+## F-1411 · UX · Pegelanzeige ohne haltende Übersteuerungsanzeige
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/LevelMeter.cpp:13-19` (Spitze fällt rund 12 dB/s), `:61-63` (Spitzenlinie nur rot, solange ≥ 0 dB).
+- **Beobachtung:** Eine kurze Übersteuerung ist nach rund einer Sekunde nicht mehr zu sehen; keine Spitzenwert-Zahl, kein haltender Clip-Anzeiger.
+- **Erwartung:** Clip-LED je Kanalzug und Master, die hält, bis man sie anklickt; optional Spitzenwert in dB.
+- **Handbuch:** mixconsole.md §10 (Note).
+
+## F-1412 · Bug · Untere Zone bleibt dauerhaft klein, wenn das Fenster beim ersten Layout klein ist
+
+- **Status:** offen (in den Szenen beobachtet; ob der Programmstart betroffen ist, im Lauf prüfen)
+- **Code:** `src/ui/fk/ui/ProjectComponent.cpp:775-779` (`resized` schreibt die geklemmte Höhe nach `lowerZoneHeight` zurück: `lowerZoneHeight = juce::jlimit (minLowerZoneHeight, …, lowerZoneHeight)`).
+- **Beobachtung:** Ist der verfügbare Platz beim ersten Layout klein, wird die gespeicherte Höhe auf 160 px gesetzt und bleibt so, auch wenn das Fenster danach größer wird. In den Handbuch-Szenen (Fenster 1000×900) zeigte die MixConsole deshalb nur rund 130 px, ohne Fader. Erst Doppelklick auf den Trenner stellt 360 px wieder her.
+- **Erwartung:** Gewünschte Höhe getrennt von der angezeigten halten: nur beim Layout klemmen, `lowerZoneHeight` nicht überschreiben (nur Ziehen und Doppelklick ändern sie).
+- **Handbuch:** project-window.md (Abschnitt zur Größe der unteren Zone, nach dem Fix prüfen); Szene `MixConsoleScenes.cpp` (setzt die Höhe über den Trenner zurück, danach überflüssig).
