@@ -457,7 +457,7 @@ The lower zone below the arrangement holds the MixConsole, the on-screen keyboar
 | 4 | **Media** | **F6** | File browser with audition; drag files into the arrangement | see the chapter *Media browser and content* |
 | 5 | **Sample Editor** | **F7** | Waveform of an audio clip | see the chapter *Sample Editor* |
 | 6 | **Drum Editor** | **F8** | MIDI clips of tracks with a drum map | see the chapter *Drum Editor* |
-| 7 | **List** | **F9** | The List Editor: notes and events of a MIDI clip as a table | see the chapter *List Editor* |
+| 7 | **List** | **F9** | The List Editor: the notes of a MIDI clip as a table <!-- FIX F-1005: may also show controllers and other events --> | [List Editor](list-editor.md) |
 | 8 | **Instruments** | **F10** | Instrument browser: instruments, libraries and presets; double-click makes a new track | see the chapter *Instruments and effects* |
 | 9 | Zone splitter | — | Drag to resize the lower zone, double-click for the default height | [§9](#9-showing-hiding-and-resizing-zones) |
 

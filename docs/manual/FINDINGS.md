@@ -246,7 +246,8 @@ Typen: **Bug** (falsches Verhalten), **Unstimmigkeit** (verschiedene Stellen ver
 - **Code:** `src/app/Application.cpp:169` (Vorlagenordner „Vorlagen“), `src/services/fk/services/ProjectService.cpp:352` (Backup-Name „… vor Wiederherstellung …“); gleiche Art: `src/services/fk/services/ClipService.cpp:1041` („… geklebt.wav“ in Audio/), `src/app/Application.cpp:64` („Absturz“), Hänger-Ordner „Haenger“.
 - **Beobachtung:** Die englische Oberfläche zeigt im Dateimanager und in der Backup-Liste deutsche Namen.
 - **Erwartung:** Englische, feste Namen (z. B. „Templates“, „before restore“, „glued“, „Crashes“, „Hangs“), mit Übernahme vorhandener Vorlagen. Zusammen mit F-102 beheben.
-- **Handbuch:** projects.md §9.1 (Tabelle Vorlagenordner), §10 (Tabelle der Dateinamen), §11.2 und §12 (Erwähnung „vor Wiederherstellung“).
+- **Ergänzung (Kapitel 11):** auch die Dateinamen der Sample-Editor-Bearbeitungen („Stille“, „Normalisiert“, „Rueckwaerts“ …).
+- **Handbuch:** projects.md §9.1 (Tabelle Vorlagenordner), §10 (Tabelle der Dateinamen), §11.2 und §12 (Erwähnung „vor Wiederherstellung“); sample-editor.md §6.
 
 ## F-307 · UX · Keine Meldung über fehlende Audiodateien oder Plugins beim Öffnen
 
@@ -564,3 +565,204 @@ Typen: **Bug** (falsches Verhalten), **Unstimmigkeit** (verschiedene Stellen ver
 - **Beobachtung:** Die Send-Zeilen stehen ohne Überschrift direkt unter den Bake-Buttons; über ihnen bleibt eine leere 14-px-Zeile. Beim Schreiben von Kapitel 5 gefunden (Szene fand das Label nicht).
 - **Erwartung:** `&sendsLabel` in die Liste der Kinder aufnehmen (`addChildComponent`, Sichtbarkeit regelt `resized`).
 - **Handbuch:** tracks.md §5 (Absatz „Sends (7)“); Szene `TracksScenes.cpp` (Bild `tracks/inspector-audio`, Markierung 7 dann mit Überschrift).
+
+## F-1101 · Unstimmigkeit · Zwei „Normalize“ mit verschiedener Wirkung
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/ClipService.cpp:430-467` (`normalizeClips`: setzt das Clip-Gain, Datei bleibt, Undo „Normalize“) gegen `:538` und `:555-640` (`processAudio` mit `AudioProcess::normalize`: schreibt eine neue Datei, Undo „Normalize section“, auch ohne Abschnitt); `src/ui/fk/ui/SampleEditor.cpp:31` (Tooltip).
+- **Beobachtung:** Im Arrangement ist Normalize zerstörungsfrei über das Clip-Gain, im Sample Editor wird die Datei umgerechnet; das Clip-Gain bleibt dabei stehen. Ein Clip mit +6 dB Clip-Gain spielt nach Normalize im Sample Editor mit Spitze +6 dBFS. Die Undo-Namen „Reverse section“/„Normalize section“ erscheinen auch, wenn der ganze Clip bearbeitet wurde.
+- **Erwartung:** Unterschiedliche Namen (z. B. „Normalize file“) oder das Clip-Gain beim Normalisieren im Sample Editor berücksichtigen bzw. auf 0 dB setzen; Undo-Name ohne Abschnitt „… clip“.
+- **Handbuch:** sample-editor.md §5.3.
+
+## F-1102 · Bug · Tasten im Sample Editor wirken auf das Arrangement (Entf löscht den Clip)
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/SampleEditor.h` (kein `keyPressed`, kein Tastaturfokus); Tasten landen in `src/ui/fk/ui/ProjectComponent.cpp:796-804` → `performCommand`, z. B. `:899-907` (Entf löscht ausgewählte Clips oder den Bereich) und `:896-897` (Strg+A wählt alle Clips).
+- **Beobachtung:** Wer im Sample Editor einen Abschnitt wählt und Entf drückt, löscht den Clip im Arrangement (der Doppelklick hat ihn ausgewählt). Strg+A wählt alle Clips statt des ganzen Materials. Im Key Editor wirken Entf und Strg+A dagegen im Editor.
+- **Erwartung:** Sample Editor nimmt Tastaturfokus: Entf = Stille (oder Abschnitt löschen), Strg+A = ganzen Clip wählen, Esc = Auswahl aufheben; nicht behandelte Tasten weiter an das Projektfenster. Gleiches Muster wie F-901 (Drum-Editor) und F-1002 (List Editor).
+- **Handbuch:** sample-editor.md §8 (Absatz „Keyboard“).
+
+## F-1103 · UX · Sample Editor: kein Vorhören, kein Positionszeiger, nur Sekunden
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/SampleEditor.cpp:221-274` (`paint`: nur Wellenform, Auswahl, Sekundenmarken), keine Verbindung zum Transport.
+- **Beobachtung:** Ein Abschnitt lässt sich vor dem Bearbeiten nicht anhören. Kein Positionszeiger, keine Takte/Zählzeiten, die Auswahl rastet weder am Raster noch an Nulldurchgängen ein. Cubase spielt die Auswahl im Sample Editor ab.
+- **Erwartung:** Button/Taste „Auswahl abspielen“, Positionszeiger, wahlweise Takte und Zählzeiten, Einrasten an Nulldurchgängen.
+- **Handbuch:** sample-editor.md §8.
+
+## F-1104 · Bug · Sample Editor passt die Ansicht nicht an, wenn sich die Clip-Länge ändert
+
+- **Status:** offen (laut Code, im Lauf noch nicht geprüft)
+- **Code:** `src/ui/fk/ui/SampleEditor.cpp:84` (`zoomToFit` nur in `setClip`), `:107-151` (`refresh` lässt `visibleStart`/`visibleLength` stehen), `:248-255`.
+- **Beobachtung:** Wird der Clip im Arrangement gekürzt, während er im Sample Editor geladen ist, zeigt die Ansicht weiter die alte Länge; die Wellenform reicht über das Clip-Ende hinaus. Nach dem Verlängern ist nur ein Teil sichtbar, bis man „Show the whole clip“ klickt.
+- **Erwartung:** In `refresh` bei geänderter Länge Ansicht begrenzen bzw. `zoomToFit`, Auswahl auf die neue Länge kürzen.
+- **Handbuch:** sample-editor.md §3 (Tip).
+
+## F-1105 · Bug · Bearbeitung eines Clips mit Takes löst die Take-Zuordnung
+
+- **Status:** offen (Anzeige-Teil laut Code, im Lauf noch nicht geprüft)
+- **Code:** `src/services/fk/services/ClipService.cpp:637` (`getSourceFileReference().setToFile` auf die neue Datei, Takes-Liste unverändert); Tracktion `tracktion_WaveAudioClip.cpp:243-262` (`getCurrentTake` sucht die Quelle in der Takes-Liste); `src/services/fk/services/TrackService.cpp:487-488`.
+- **Beobachtung:** Die bearbeitete Datei wird kein Take. Wählt man danach einen Take, ist die Bearbeitung weg. Die Take-Anzeige im Arrangement zeigt danach vermutlich keinen oder einen falschen aktuellen Take.
+- **Erwartung:** Bei Clips mit Takes die Datei des aktuellen Takes in der Takes-Liste ersetzen (im selben Undo-Schritt) oder die Bearbeitung als neuen Take anlegen.
+- **Handbuch:** sample-editor.md §6 (Note zu Takes).
+
+## F-1106 · Text · Tooltips der Bearbeitungen im Sample Editor uneinheitlich
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/SampleEditor.cpp:29-35`.
+- **Beobachtung:** Nur „Silence: … (or the whole clip)“ sagt, dass ohne Auswahl der ganze Clip bearbeitet wird. „Amplify or attenuate (selection in dB)“ ist unklar. „Invert phase“ erwähnt den Abschnitt nicht, wirkt aber nur auf ihn.
+- **Erwartung:** Einheitlich, z. B. „Amplify the section (whole clip without a selection)“, „Invert the phase of the section (…)“.
+- **Handbuch:** sample-editor.md §2 (Tooltip-Tabelle); Szene `SampleEditorScenes.cpp` sucht Buttons über die Tooltip-Anfänge.
+
+## F-1107 · UX · Wellenform im Sample Editor zeigt nicht, was man hört
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/SampleEditor.cpp:221-274` (`paint` zeichnet nur die Datei ab `offsetSeconds`; `gainDb`, `fadeInSeconds`, `fadeOutSeconds`, `reversed` aus `ClipInfo` bleiben unberücksichtigt).
+- **Beobachtung:** Clip-Gain, die Fades der Clip-Griffe und „Reverse“ aus dem Arrangement sind im Sample Editor unsichtbar. Ein rückwärts laufender Clip wird vorwärts gezeichnet.
+- **Erwartung:** Clip-Fades einzeichnen, Clip-Gain in der Höhe berücksichtigen oder in der Infozeile nennen, rückwärts gespiegelt zeichnen.
+- **Handbuch:** sample-editor.md §2 (Absatz Waveform), §5.4 (Note); Bild `sample-editor/locked`.
+
+## F-901 · Bug · Entf/Rücktaste im Drum-Editor löschen Clips im Arrangement
+
+- **Status:** offen (aus dem Code abgeleitet)
+- **Code:** `src/ui/fk/ui/DrumEditor.cpp` (weder `DrumGrid` noch `DrumEditor` rufen `setWantsKeyboardFocus`, kein `keyPressed`) gegen `src/ui/fk/ui/NoteGrid.cpp:36`; Tasten landen in `src/ui/fk/ui/ProjectComponent.cpp:796-801` → `:899-907` (`deleteSelection` löscht die ausgewählten Clips).
+- **Beobachtung:** Wer wie im Key Editor einen Schlag mit Entf löschen will, löscht die im Arrangement ausgewählten Clips; nach dem Doppelklick meist genau den bearbeiteten Clip.
+- **Erwartung:** Drum-Raster nimmt den Fokus und behandelt Entf/Rücktaste selbst (mit Auswahl, siehe F-911) oder schluckt die Tasten. Gleiches Muster wie F-1002 und F-1102: zusammen lösen.
+- **Handbuch:** drum-editor.md §6 (Caution), §13.
+
+## F-902 · Bug · Vorhören im Drum-Editor beendet Noten nie
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/DrumEditor.cpp:386-390` und `:408-412` rufen `preview.startNote`, nirgends `preview.stopAll()`; der Key Editor beendet beim Loslassen (`src/ui/fk/ui/KeyEditor.cpp:224-238`). `NotePreviewService::startNote` sendet Note-Off erst, wenn dieselbe Note neu angeschlagen wird.
+- **Beobachtung:** Bei Instrumenten mit gehaltenem Klang klingt die vorgehörte Note weiter, bis dieselbe Zeile erneut angespielt wird.
+- **Erwartung:** `mouseUp` in `DrumGrid` und `DrumNames` ruft `stopAll` wie im Key Editor.
+- **Handbuch:** drum-editor.md §10 (Note).
+
+## F-903 · Bug · Klick neben einen Schlag setzt einen zweiten auf dieselbe Stelle
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/DrumEditor.cpp:104-123` (`hitAt` trifft nur bis 8 px Abstand), `:197-208` (sonst neuer Schlag), `:99-102` (`snapped` rundet zum nächsten Rasterschritt).
+- **Beobachtung:** Ein Klick 9 px oder weiter neben einer Raute, der zum selben Rasterschritt gerundet wird, legt eine zweite, unsichtbare Note genau auf die erste; ein Klick auf die Raute löscht nur eine.
+- **Erwartung:** Vor dem Setzen prüfen, ob auf Note und Rasterschritt schon ein Schlag liegt; dann löschen oder nichts tun.
+- **Handbuch:** drum-editor.md §5 (Note).
+
+## F-904 · UX · Drum-Map lässt sich Spuren ohne automatische Map nicht zuordnen
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/DrumEditor.cpp:484-486` (Map-Liste nur mit geladenem Clip), `src/ui/fk/ui/ProjectComponent.cpp:1767-1782` (`openMidiClip`: ohne Map in den Key Editor), `src/services/fk/services/DrumMapService.cpp:275-287` (automatisch nur „FK Drums“ bzw. Namen mit drum/kit/percussion/schlagzeug). Weder Inspector noch Key Editor haben eine Map-Auswahl.
+- **Beobachtung:** FK-Synth-Spuren, externe MIDI-Spuren (Drumcomputer) oder Schlagzeug-Plugins mit anderem Namen öffnen ihre Clips immer im Key Editor; eine Map lässt sich nicht wählen. Der Hinweis des leeren Drum-Editors verspricht „otherwise choose one here“.
+- **Erwartung:** Drum-Map im Inspector (Instrumenten- und MIDI-Spuren) oder im Spurmenü wählbar; Map-Liste auch ohne Clip für die ausgewählte Spur.
+- **Handbuch:** drum-editor.md §1 (Note), §3.1 (Note).
+
+## F-905 · UX · Eigene Drum-Maps: Import, Export und Löschen ohne Bedienung
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/DrumMapService.h:59-61` (`importMap`, `exportMap`, `deleteMap`, nur in Tests aufgerufen); `src/services/fk/services/DrumMapService.cpp:244-250` (ungültige Dateien still übersprungen), `:344` (Standardname „Drum-Map“).
+- **Beobachtung:** Eigene Maps gehen nur, indem man JSON von Hand in den Ordner `DrumMaps` legt. Fehlerhafte Dateien fehlen ohne Meldung. Der Ordner wird erst von `importMap` angelegt.
+- **Erwartung:** Einträge „Import drum map…“, „Export…“, „Delete“; Meldung bei ungültiger Datei; Standardname englisch („Drum map“).
+- **Handbuch:** drum-editor.md §3.4.
+
+## F-906 · Unstimmigkeit · Spur merkt sich bei Drum-Maps nur die Kennung, bei Expression Maps eine Kopie
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/DrumMapService.cpp:247` (Kennung „user:“ + Dateiname), `:266-273` (unbekannte Kennung → still automatisch) gegen `src/services/fk/services/ExpressionMapService.h:16`, `:33` (Kopie in der Spur).
+- **Beobachtung:** Auf einem anderen Rechner oder nach Umbenennen der Datei zeigt die Spur still eine andere Map (oder keine), und Clips öffnen womöglich im Key Editor.
+- **Erwartung:** Wie bei Expression Maps eine Kopie der Map in der Spur speichern.
+- **Handbuch:** drum-editor.md §3.2 (Note).
+
+## F-907 · Bug · Undo von Drum-Map- und Sample-Zuordnung
+
+- **Status:** offen (aus dem Code, im Lauf noch nicht geprüft)
+- **Code:** `src/services/fk/services/MidiClipService.cpp:625-652` (Neuladen nur bei Änderungen in MIDI-Clips, nicht an Spur-Eigenschaften `drumMap`/`fkSamplerRegions`); `src/services/fk/services/SamplerService.cpp:59-73` (`storeRegions` mit Undo) gegen `:115-140` (`writeAndLoad`: SFZ-Datei und Laden ins Plugin ohne Undo, kein Listener auf `samplerRegions`).
+- **Beobachtung:** Nach Ctrl+Z von „Assign drum map“ oder „Assign sample“ zeigt der Drum-Editor bis zum nächsten Neuladen den alten Stand. Nach Undo einer Sample-Zuweisung spielt FK Sampler vermutlich weiter das neue Sample.
+- **Erwartung:** Drum-Editor hört auf Spur-Eigenschaften; SFZ bei Änderung von `samplerRegions` (auch durch Undo) neu schreiben und laden.
+- **Handbuch:** drum-editor.md §14 (Note).
+
+## F-908 · UX · Sample lässt sich nicht von einer Drum-Zeile entfernen
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/SamplerService.h:41` (`removeSample`, nur in Tests aufgerufen), `src/ui/fk/ui/DrumEditor.cpp` (kein Kontextmenü der Namensspalte).
+- **Beobachtung:** Ein falsch abgelegtes Sample lässt sich nur ersetzen, nicht entfernen.
+- **Erwartung:** Rechtsklick auf den Namen: „Remove sample“ (Undo-Schritt „Remove sample“ gibt es schon).
+- **Handbuch:** drum-editor.md §11 (Liste „What to know“).
+
+## F-909 · Text · Menüpfad „Track > Sampler Track …“ in Hinweis und Fehlermeldung
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/DrumEditor.cpp:421` („Track > Sampler Track (empty drum kit)“), `src/services/fk/services/SamplerService.cpp:233` („Track > Sampler track creates one.“) gegen das Menü `src/ui/fk/ui/ProjectComponent.cpp:1984-1985` („Sampler track from audio file...“, „Sampler track (empty drum kit)“).
+- **Erwartung:** Pfad mit „›“ und Schreibweise wie im Menü, z. B. „Track › Sampler track (empty drum kit)“.
+- **Handbuch:** drum-editor.md §1 (Bild), §11, §14; Bild `drum-editor/empty`.
+
+## F-910 · Unstimmigkeit · Raster, Einrasten, Symbole und Quantisieren anders als im Key Editor
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/DrumEditor.cpp:352-362` (Raster als flache Liste mit 24 Einträgen) gegen `src/ui/fk/ui/KeyEditor.cpp:629-654` (Untermenüs Dotted/Triplet); `DrumEditor.cpp:99-102` (rundet zum nächsten Schritt) gegen `src/ui/fk/ui/NoteGrid.cpp:511-513` (Schritt links der Maus); `DrumEditor.cpp:323` (Audition mit `Icon::keyboard`, im Key Editor das Symbol für Step) gegen `KeyEditor.cpp:121` (`Icon::speaker`); `DrumEditor.cpp:322` (Quantize nur Symbol) gegen Key Editor mit Beschriftung; `DrumEditor.cpp:375` (Quantisieren ohne Stärke/Swing/Groove).
+- **Beobachtung:** Wer zwischen den Editoren wechselt, findet dieselben Funktionen anders benannt, gezeichnet und mit anderem Verhalten.
+- **Erwartung:** Gemeinsame Rasterliste (`fillNoteValueBox`), gleiches Einrasten, Lautsprecher-Symbol, beschrifteter Quantize-Button mit denselben Optionen.
+- **Handbuch:** drum-editor.md §2, §5, §8; Bild `drum-editor/overview`.
+
+## F-911 · UX · Drum-Editor ohne Auswahl, Verschieben, Kopieren und Anschlagsanzeige
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/DrumEditor.cpp:187-245` (nur Setzen, Löschen, senkrechtes Ziehen; 1 px = 1 Anschlagsstufe ohne Zahl) gegen Key Editor (Auswahl, Verschieben, Alt-Kopie, Pfeiltasten, Velocity-Lane, Wertanzeige, 2 px je Stufe).
+- **Beobachtung:** Schläge lassen sich nicht verschieben, kopieren oder gemeinsam ändern; der Anschlag ist beim Ziehen nur an der Rautengröße erkennbar. Weniger als 3 px Bewegung löscht den Schlag.
+- **Erwartung:** Auswahl (Rechteck, Ctrl+A), Verschieben/Kopieren auf dem Raster, Tasten wie im Key Editor, Velocity-Lane oder Wertanzeige beim Ziehen.
+- **Handbuch:** drum-editor.md §7, §13.
+
+## F-912 · UX · Mausrad über der Namensspalte des Drum-Editors rollt nicht
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/DrumEditor.cpp:570-579` (ohne Ctrl an die Eltern weitergereicht), `DrumNames` ohne `mouseWheelMove`; nur der Viewport des Rasters rollt.
+- **Erwartung:** Mausrad über den Namen rollt die Zeilen wie über dem Raster.
+- **Handbuch:** drum-editor.md §12.
+
+## F-1001 · Bug · Klick auf einen Wert wählt die Zeile im List Editor nicht aus
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ListEditor.cpp:278`: jede Zelle ist ein `CellLabel` mit `setInterceptsMouseClicks (true, true)`. Die Maustasten erreichen die Zeilenkomponente von JUCE (`TableListBox::RowComp`, Auswahl in `mouseDown/mouseUp`) dann nicht. Auswählen geht nur rechts neben der letzten Spalte oder per Tastatur.
+- **Erwartung:** Klick (mit Shift/Ctrl) auf eine Zelle wählt die Zeile aus, Doppelklick bearbeitet; z. B. Klicks im Label an `table.selectRowsBasedOnModifierKeys` weitergeben oder `cellClicked` nutzen.
+- **Handbuch:** list-editor.md §4 (Hinweis „Important“), Tabelle der Auswahlaktionen, Kurzreferenz.
+
+## F-1002 · Bug · Entf/Rücktaste im List Editor ohne ausgewählte Zeile löscht Clips im Arrangement
+
+- **Status:** offen
+- **Code:** JUCEs `ListBox::keyPressed` behandelt Delete/Backspace nur, wenn eine Zeile ausgewählt ist, sonst `false`. Die Taste wandert zu `src/ui/fk/ui/ProjectComponent.cpp:800` (`keyBindings.find`) und dort zu `Command::deleteSelection` (`:899`), das die im Arrangement ausgewählten Clips oder den Bereich löscht. Nach dem Doppelklick zum Öffnen ist meist genau der bearbeitete Clip ausgewählt.
+- **Erwartung:** Der List Editor verbraucht Delete/Backspace immer (ohne Auswahl wirkungslos), z. B. `keyPressed` im ListEditor überschreiben. Gleiches Muster wie F-901 (Drum-Editor) und F-1102 (Sample Editor), am besten zusammen lösen: Editoren der unteren Zone geben Bearbeitungstasten nie ans Arrangement weiter.
+- **Handbuch:** list-editor.md §6 (Hinweis „Caution“).
+
+## F-1003 · Bug · Auswahl im List Editor hängt an Zeilennummern statt an Noten
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ListEditor.cpp` `reload()` (ab Zeile 70) sortiert neu und ruft `table.updateContent()`; `ListBox` behält dabei die ausgewählten Zeilennummern. `setClip()` (`:64`) leert die Auswahl nicht.
+- **Beobachtung:** Nach einer Positionsänderung, nach Änderungen in einem anderen Editor oder nach dem Öffnen eines anderen Clips markiert die Auswahl andere Noten. Löschen trifft dann die falschen Noten.
+- **Erwartung:** Auswahl über die Noten merken (Index/Inhalt) und nach `reload()` wiederherstellen; beim Clipwechsel leeren.
+- **Handbuch:** list-editor.md §4 (Hinweis „Note“).
+
+## F-1004 · UX · Spaltenköpfe des List Editors zeigen Sortierpfeil ohne Wirkung, „Auto-size“ tut nichts
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ListEditor.cpp:37-40` legt die Spalten mit den JUCE-Vorgaben an (`defaultFlags` inkl. `sortable`); `sortOrderChanged` und `getColumnAutoSizeWidth` sind nicht überschrieben.
+- **Beobachtung:** Ein Klick auf den Kopf zeigt einen Sortierpfeil, die Liste bleibt nach Position sortiert. „Auto-size this column“/„Auto-size all columns“ ändern nichts. Spaltenbreite, Reihenfolge und ausgeblendete Spalten werden nicht gespeichert.
+- **Erwartung:** Sortieren umsetzen oder `sortable` abschalten; Auto-size umsetzen oder abschalten (`setAutoSizeMenuOptionShown (false)`).
+- **Handbuch:** list-editor.md §8 (Hinweis „Note“).
+
+## F-1005 · UX · List Editor zeigt nur Noten, kann nichts einfügen und teilt die Auswahl nicht
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ListEditor.cpp`/`.h`: Spalten nur für Noten. `MidiClipInfo::controllers` (`src/services/fk/services/MidiClipService.h:79`) und die Artikulation (`EditableNote::articulation`) werden nicht angezeigt. Kein Einfügen, kein Filter, kein Abgleich der Auswahl mit Key/Drum Editor.
+- **Erwartung:** Controller/Pitch-Bend/Aftertouch als Zeilen mit Typspalte, Einfügen-Button, Filter nach Ereignistyp, Auswahl mit dem geöffneten Editor gekoppelt.
+- **Handbuch:** list-editor.md §3 (erster Absatz), §7, §9; project-window.md §8 (Tabelle der Reiter).
+
+## F-1006 · UX · Ungültige Eingaben im List Editor werden stumm verworfen, Länge liest nur die führende Zahl
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ListEditor.cpp:272-276` (bei `editCell == false` alter Text ohne Meldung); Länge `:197` per `getDoubleValue()` („1/8“ ergibt 1 Schlag, „2x“ ergibt 2); Anschlag `:210` klemmt 0 auf 1 und >127 auf 127 ohne Hinweis; Position (`TimelineService::parseBarsBeats`) prüft die Schlagzahl nicht gegen die Taktlänge.
+- **Erwartung:** Kurze Meldung oder rote Zelle bei ungültiger Eingabe; Länge streng prüfen oder Brüche („1/8“, „1/8.“, „1/8T“) wie im Key Editor als Notenwerte verstehen.
+- **Handbuch:** list-editor.md §5 („Invalid input …“ und Hinweis unter „Length (beats)“).
+
+## F-1007 · Unstimmigkeit · Undo-Name und Kopfzeile des List Editors weichen vom Key Editor ab
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ListEditor.cpp:217` (jede Zellenänderung heißt „List Editor“, der Key Editor benennt die Aktion); Kopfzeile `:89` „{name} · {notes}“ gegen `src/ui/fk/ui/KeyEditor.cpp:548` „{name}  ({notes})“.
+- **Erwartung:** Undo-Namen nach Spalte („Move note“, „Transpose note“, „Change note length“, „Change velocity“); eine gemeinsame Form der Kopfzeile.
+- **Handbuch:** list-editor.md §11 (erster Absatz), §2 (Tabelle Zeile 1).

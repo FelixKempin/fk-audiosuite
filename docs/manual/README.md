@@ -25,9 +25,9 @@ Chapters are listed in the order a new user needs them. Chapters without a link 
 | 6 | [Recording audio and MIDI](recording.md): inputs, punch, takes | written |
 | 7 | [Arranging](arranging.md): clips, editing tools, fades, time stretch | written |
 | 8 | [Key Editor](key-editor.md) | written |
-| 9 | Drum Editor | planned |
-| 10 | List Editor | planned |
-| 11 | Sample Editor | planned |
+| 9 | [Drum Editor](drum-editor.md) | written |
+| 10 | [List Editor](list-editor.md) | written |
+| 11 | [Sample Editor](sample-editor.md) | written |
 | 12 | Signature track: tempo, time signature, key | planned |
 | 13 | Automation | planned |
 | 14 | MixConsole: channels, inserts, sends, routing | planned |
