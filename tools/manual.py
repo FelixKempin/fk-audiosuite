@@ -4,6 +4,8 @@
     tools/manual.py check            veraltete Kapitel, fehlende und verwaiste Bilder
     tools/manual.py coverage         UI-Quellen, die noch kein Kapitel beschreibt
     tools/manual.py shots [--build]  Bilder neu erzeugen (Szenen in tests/manual, Tag [manual])
+    tools/manual.py findings         Funde (FINDINGS.md) mit ihren Stellen in Handbuch und Szenen
+    tools/manual.py export [html|pdf] Handbuch als eine HTML-Datei und/oder PDF nach build/manual
     tools/manual.py hook             für den Stop-Hook von Claude Code
 
 Ein Kapitel ist veraltet, wenn eine Datei aus seinem `sources:` nach dem letzten Commit des
@@ -28,6 +30,12 @@ IMAGES = MANUAL / "images"
 SCENES = ROOT / "tests" / "manual"
 UI_SOURCES = "src/ui/fk/ui/*.cpp"
 DEFAULT_BUILD = ROOT / "build" / "linux-release"
+FINDINGS = MANUAL / "FINDINGS.md"
+EXPORT = ROOT / "build" / "manual"
+EXPORT_VENV = ROOT / "build" / "manual-venv"
+EXPORT_PACKAGES = ["markdown==3.11.1", "weasyprint==70.0"]
+FINDING_HEADING = re.compile(r"^## (F-\d{3}) · ([^·]+) · (.+)$", re.M)
+FINDING_MARKER = re.compile(r"FIX (F-\d{3})")
 
 
 @dataclass
@@ -118,6 +126,57 @@ def scene_names() -> set[str]:
     return names
 
 
+def load_findings() -> dict[str, dict[str, str]]:
+    """Funde aus FINDINGS.md: Nummer -> Typ, Titel, Status."""
+    if not FINDINGS.exists():
+        return {}
+    text = FINDINGS.read_text(encoding="utf-8")
+    findings = {}
+    matches_ = list(FINDING_HEADING.finditer(text))
+    for i, match in enumerate(matches_):
+        body = text[match.end(): matches_[i + 1].start() if i + 1 < len(matches_) else len(text)]
+        status = re.search(r"\*\*Status:\*\*\s*(\S+)", body)
+        findings[match.group(1)] = {"type": match.group(2).strip(), "title": match.group(3).strip(),
+                                    "status": status.group(1) if status else "?"}
+    return findings
+
+
+def finding_markers() -> dict[str, list[str]]:
+    """Fundnummer -> Stellen (Datei:Zeile) in Kapiteln und Szenen."""
+    places: dict[str, list[str]] = {}
+    files = [p for p in MANUAL.glob("*.md") if p != FINDINGS] + list(SCENES.glob("*.cpp"))
+    for file in files:
+        for number, line in enumerate(file.read_text(encoding="utf-8").splitlines(), 1):
+            for marker in FINDING_MARKER.findall(line):
+                places.setdefault(marker, []).append(f"{file.relative_to(ROOT)}:{number}")
+    return places
+
+
+def cmd_findings() -> int:
+    findings = load_findings()
+    places = finding_markers()
+    for key, finding in findings.items():
+        print(f"{key}  [{finding['status']}]  {finding['type']}: {finding['title']}")
+        for place in places.get(key, []):
+            print(f"        {place}")
+    open_count = sum(1 for finding in findings.values() if finding["status"] == "offen")
+    print(f"\n{len(findings)} Funde, {open_count} offen")
+    return 0
+
+
+def check_findings() -> int:
+    findings = load_findings()
+    problems = 0
+    for key, places in sorted(finding_markers().items()):
+        if key not in findings:
+            problems += 1
+            print(f"!!  Marker {key} ohne Eintrag in FINDINGS.md: {', '.join(places)}")
+        elif findings[key]["status"] != "offen":
+            problems += 1
+            print(f"!!  {key} ist {findings[key]['status']}, Marker noch da: {', '.join(places)}")
+    return problems
+
+
 def cmd_check() -> int:
     chapters = load_chapters()
     dirty = uncommitted()
@@ -154,7 +213,9 @@ def cmd_check() -> int:
             problems += 1
             print(f"!!  verwaistes Bild: images/{name}.png (kein Kapitel zeigt es)")
 
-    print(f"\n{len(chapters)} Kapitel, {problems} offene Punkte")
+    problems += check_findings()
+    open_findings = sum(1 for finding in load_findings().values() if finding["status"] == "offen")
+    print(f"\n{len(chapters)} Kapitel, {problems} offene Punkte, {open_findings} offene Funde (FINDINGS.md)")
     return 1 if problems else 0
 
 
@@ -183,6 +244,33 @@ def cmd_shots(args: list[str]) -> int:
     return subprocess.run([str(binary), "[manual]"], env=env, cwd=ROOT).returncode
 
 
+def chapter_order() -> list[Path]:
+    """Kapitel in der Reihenfolge des Inhaltsverzeichnisses (nur verlinkte, also geschriebene)."""
+    readme = (MANUAL / "README.md").read_text(encoding="utf-8")
+    return [MANUAL / name for name in re.findall(r"\]\(([\w-]+\.md)\)", readme)
+            if name not in ("MAINTAINING.md", "FINDINGS.md") and (MANUAL / name).exists()]
+
+
+def ensure_export_python() -> Path:
+    """Eigene venv unter build/ (markdown, weasyprint), beim ersten Export angelegt."""
+    python = EXPORT_VENV / "bin" / "python"
+    if not python.exists():
+        print("Lege build/manual-venv an (einmalig) ...")
+        subprocess.run([sys.executable, "-m", "venv", str(EXPORT_VENV)], check=True)
+        subprocess.run([str(python), "-m", "pip", "install", "-q", *EXPORT_PACKAGES], check=True)
+    return python
+
+
+def cmd_export(args: list[str]) -> int:
+    formats = [arg for arg in args if arg in ("html", "pdf")] or ["html", "pdf"]
+    python = ensure_export_python()
+    EXPORT.mkdir(parents=True, exist_ok=True)
+    chapters = [str(path) for path in chapter_order()]
+    result = subprocess.run([str(python), "-I", str(Path(__file__).with_name("manual_export.py")),
+                             str(MANUAL), str(EXPORT), ",".join(formats), *chapters])
+    return result.returncode
+
+
 def cmd_hook() -> int:
     try:
         payload = json.load(sys.stdin)
@@ -204,6 +292,8 @@ def cmd_hook() -> int:
         "Texte, Tooltips, Menüs oder Abläufe geändert haben; dann Kapiteltext und Szene in "
         "tests/manual anpassen und Bilder neu erzeugen (tools/manual.py shots, Build vorher "
         "erfragen). Ist nichts zu ändern, `reviewed:` im Kopf des Kapitels auf heute setzen. "
+        "Behebt die Änderung einen Fund aus docs/manual/FINDINGS.md, dessen Stellen anpassen "
+        "(tools/manual.py findings). "
         "Regeln: docs/manual/MAINTAINING.md.\n\n" + "\n".join(hits)
     )
     print(json.dumps({"decision": "block", "reason": reason}))
@@ -218,6 +308,10 @@ def main() -> int:
         return cmd_coverage()
     if command == "shots":
         return cmd_shots(sys.argv[2:])
+    if command == "findings":
+        return cmd_findings()
+    if command == "export":
+        return cmd_export(sys.argv[2:])
     if command == "hook":
         return cmd_hook()
     print(__doc__)

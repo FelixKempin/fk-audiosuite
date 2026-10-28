@@ -112,22 +112,29 @@ TEST_CASE ("Handbuch: Key Editor Überblick mit nummerierten Elementen", "[manua
     editor.setClip (scene.clipId);
     TestEnvironment::pumpMessages (100);
 
-    // Nummern wie in der Tabelle in key-editor.md, Abschnitt "The editor at a glance".
+    // Nummern wie in der Tabelle in key-editor.md, Abschnitt "The editor at a glance". Zwei Bilder,
+    // damit die Leiste im PDF lesbar bleibt: links Leiste bis Step mit den Flächen, rechts der Rest der Leiste.
     const std::array<const char*, 16> toolbar { "Select:", "Pencil:", "Eraser:", "Audition:",
                                                 "Grid:", "Length of new notes", "Quantize:", "Quantize options",
                                                 "MIDI functions", "Step input", "Expression map of the track", "Key at the clip start",
                                                 "Degree relative", "Chord type", "Inversion", "Insert the chord" };
-    std::vector<Callout> callouts;
+    const std::array<const char*, 4> areas { "Click a key to audition", "Click selects", "Velocity per note", "Add controller lane" };
+    std::vector<Callout> left;
+    std::vector<Callout> right;
 
     for (std::size_t i = 0; i < toolbar.size(); ++i)
-        callouts.push_back (calloutFor (static_cast<int> (i) + 1, editor, findByTooltip (editor, toolbar[i]), Callout::Placement::above));
-
-    const std::array<const char*, 4> areas { "Click a key to audition", "Click selects", "Velocity per note", "Add controller lane" };
+        (i < 10 ? left : right).push_back (calloutFor (static_cast<int> (i) + 1, editor, findByTooltip (editor, toolbar[i]), Callout::Placement::above));
 
     for (std::size_t i = 0; i < areas.size(); ++i)
-        callouts.push_back (calloutFor (static_cast<int> (toolbar.size() + i) + 1, editor, findByTooltip (editor, areas[i]), Callout::Placement::inside));
+        left.push_back (calloutFor (static_cast<int> (toolbar.size() + i) + 1, editor, findByTooltip (editor, areas[i]), Callout::Placement::inside));
 
-    saveShot (editor, "key-editor/overview", callouts);
+    // Linkes Bild endet hinter Step, rechtes beginnt vor der Expression-Map-Liste.
+    const auto stepRight = editor.getLocalArea (&findByTooltip (editor, "Step input"), findByTooltip (editor, "Step input").getLocalBounds()).getRight();
+    const auto mapLeft = editor.getLocalArea (&findByTooltip (editor, "Expression map of the track"),
+                                              findByTooltip (editor, "Expression map of the track").getLocalBounds()).getX();
+    saveShot (editor, "key-editor/overview", left, juce::Rectangle<int> (0, 0, stepRight + 12, editor.getHeight()));
+    saveShot (editor, "key-editor/toolbar-chords", right,
+              juce::Rectangle<int> (mapLeft - 8, 0, editor.getWidth() - mapLeft + 8, 36));
 }
 
 TEST_CASE ("Handbuch: Key Editor Auswahl und Anschlag", "[manual]")

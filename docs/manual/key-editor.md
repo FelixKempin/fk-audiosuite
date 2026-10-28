@@ -16,6 +16,7 @@ sources:
 images:
   - key-editor/empty
   - key-editor/overview
+  - key-editor/toolbar-chords
   - key-editor/selection
   - key-editor/step-input
   - key-editor/controller-lanes
@@ -82,6 +83,8 @@ The editor always shows one clip at a time. If you delete the clip or open anoth
 
 ![Key Editor overview with numbered elements](images/key-editor/overview.png)
 
+![Right part of the toolbar: expression map, key and chords](images/key-editor/toolbar-chords.png)
+
 The heading at the top left shows the clip name and the number of notes, for example *MIDI (10 notes)*. The numbers in the picture mean:
 
 | # | Element | What it does | Details |
@@ -109,6 +112,7 @@ The heading at the top left shows the clip name and the number of notes, for exa
 
 **Reading the note grid**
 
+<!-- FIX F-001: octave naming may change to C3 or become a setting -->
 - Every row is one semitone. The piano keys on the left label each C with its octave; middle C (MIDI note 60) is **C4**.
 - Rows that are not part of the current key are dimmed, and black-key rows are slightly darker, so you can see at a glance which notes fit the scale.
 - Vertical lines show bars (strong), beats (medium) and grid steps (fine). At coarse zoom with a fine grid, only every n-th grid line is drawn. A strong line marks the end of the clip.
@@ -117,6 +121,7 @@ The heading at the top left shows the clip name and the number of notes, for exa
 
 When you open a clip, the view scrolls so that **C5** is at the top edge.
 
+<!-- FIX F-005: toolbar may wrap or get an overflow menu; Lane button label -->
 > **Tip:** If the window is narrow, the right end of the toolbar is cut off. The **Lane** button (20) sits below the piano keys so you can always reach it.
 
 ---
@@ -268,6 +273,7 @@ The **velocity lane** (19) shows one bar per note, at the note's start. The high
 
 **To change the velocity of one note:** drag its bar up or down. The value is shown next to the bar while you drag.
 
+<!-- FIX F-004: editing stacked chord notes in the lane may change -->
 **To change several notes at once:** select them first, then drag the bar of one of them. All selected notes change by the same amount, so their differences stay the same.
 
 **Directly in the note grid:** hold **Ctrl+Shift** and drag a note up or down. Every 2 pixels change the velocity by 1. If the note is selected, all selected notes change.
@@ -374,6 +380,7 @@ Controller lanes show and edit continuous MIDI data under the velocity lane. You
 - Change what a lane shows with its list (1): **Sustain (CC64)**, **Sostenuto (CC66)**, **Soft (CC67)**, **Mod wheel (CC1)**, **Pitch bend**, **Aftertouch**, or any other controller CC0–CC127 under **More CCs**.
 - Remove a lane with its **−** button (2). This only hides the lane; the data stays in the clip.
 
+<!-- FIX F-003: lanes may become persistent per track -->
 Lanes are not saved with the project: they are a view. When you open the editor again, add the lanes you need.
 
 ### Editing controller data
@@ -416,6 +423,7 @@ With a map chosen, the **articulation lane** (2) appears above the velocity lane
 2. The note gets this articulation. If the note is selected, all selected notes get it.
 3. Click again in the same row to remove the articulation (when all affected notes already have it).
 
+<!-- FIX F-005: articulation names in the lane header are cut off -->
 In the note grid, notes with an articulation show its symbol at the start of the bar, for example *leg*, *·* (staccato) or *>* (accent).
 
 ---

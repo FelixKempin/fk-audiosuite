@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <optional>
 #include <vector>
 
 /// Werkzeug für die Bilder des Benutzerhandbuchs (docs/manual/MAINTAINING.md): Szenen zeichnen echte
@@ -93,16 +94,25 @@ inline Callout calloutFor (int number, juce::Component& root, juce::Component& t
     return { number, area.getIntersection (root.getLocalBounds()), placement };
 }
 
-/// Fotografiert die Komponente, zeichnet die Markierungen und schreibt images/<name>.png.
-inline void saveShot (juce::Component& component, const juce::String& name, const std::vector<Callout>& callouts = {})
+/// Fotografiert die Komponente (oder den Ausschnitt area), zeichnet die Markierungen und schreibt
+/// images/<name>.png. Ausschnitte halten breite Leisten im PDF lesbar (A4: rund 900 px Bildbreite).
+inline void saveShot (juce::Component& component,
+                      const juce::String& name,
+                      std::vector<Callout> callouts = {},
+                      std::optional<juce::Rectangle<int>> area = std::nullopt)
 {
+    const auto shotArea = area.value_or (component.getLocalBounds());
+
+    for (auto& callout : callouts)
+        callout.target = callout.target.getIntersection (shotArea).translated (-shotArea.getX(), -shotArea.getY());
+
     constexpr int badge = 18;
     constexpr int strip = 28; // Rand über dem Bild für Markierungen der Werkzeugleiste
 
     const bool needsStrip = std::ranges::any_of (callouts, [] (const Callout& callout)
                                                  { return callout.placement == Callout::Placement::above; });
     const int top = needsStrip ? strip : 0;
-    const auto snapshot = component.createComponentSnapshot (component.getLocalBounds());
+    const auto snapshot = component.createComponentSnapshot (shotArea);
 
     juce::Image image (juce::Image::ARGB, snapshot.getWidth(), snapshot.getHeight() + top, true);
     juce::Graphics g (image);

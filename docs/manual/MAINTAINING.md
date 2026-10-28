@@ -9,12 +9,14 @@ Grundsatz: **Ein Feature ist erst fertig, wenn sein Kapitel stimmt.** Text, Bild
 docs/manual/
   README.md            Inhaltsverzeichnis (Reihenfolge, Status je Kapitel)
   MAINTAINING.md       diese Datei
+  FINDINGS.md          Bugs und Unstimmigkeiten, beim Schreiben gefunden (F-NNN)
   <kapitel>.md         ein Kapitel je Bereich, Dateiname = Slug (key-editor.md)
   images/<kapitel>/    PNGs, nur von Szenen erzeugt, nie von Hand
 tests/manual/
   ManualShot.h         saveShot, findByTooltip, Markierungen
   <Bereich>Scenes.cpp  eine Szene je Bild, Tag [manual]
-tools/manual.py        check | coverage | shots | hook
+tools/manual.py        check | coverage | shots | findings | export | hook
+tools/manual_export.py HTML/PDF-Erzeugung (läuft in build/manual-venv)
 ```
 
 ## Kapitelkopf
@@ -77,6 +79,25 @@ Ein Kapitel ist **veraltet**, wenn eine Datei aus `sources` nach dem letzten Com
 
 Der Stop-Hook (`.claude/settings.json`, `tools/manual.py hook`) meldet sich, wenn eigene, noch nicht gepushte Änderungen ein Kapitel veraltet machen.
 
+## Funde (Bugs, Unstimmigkeiten)
+
+Beim Schreiben fällt viel auf. **Nicht nebenbei fixen**, sondern in `FINDINGS.md` festhalten; der Code-Agent arbeitet die Liste am Ende ab. Das Kapitel beschreibt bis dahin das aktuelle Verhalten.
+
+- Jede betroffene Handbuchstelle bekommt direkt davor `<!-- FIX F-NNN: was sich ändern würde -->`, betroffene Szenen `// FIX F-NNN`.
+- Nach dem Fix: `tools/manual.py findings` zeigt alle Stellen eines Funds; dort Text/Szene anpassen, Marker löschen, Bilder neu erzeugen, Status **behoben** (Commit).
+- `check` meldet Marker ohne Fund und Marker zu bereits behobenen Funden.
+
+## Export (HTML, PDF)
+
+```
+tools/manual.py export          # beides
+tools/manual.py export pdf      # nur PDF
+```
+
+Ergebnis: `build/manual/fk-audiosuite-manual.html` (eine Datei, Bilder eingebettet) und `.pdf` (A4, Deckblatt mit Version aus `CMakeLists.txt`, Inhaltsverzeichnis, jedes Kapitel auf neuer Seite). Aufgenommen werden die Kapitel, die in `README.md` verlinkt sind, in dieser Reihenfolge. Beim ersten Lauf entsteht `build/manual-venv` (markdown, weasyprint, rund 90 MB).
+
+Bilder sind auf A4 rund 700 px breit dargestellt: Szenen höchstens etwa 1000 px breit anlegen, breite Leisten als Ausschnitt (`saveShot (…, area)`) in mehrere Bilder teilen.
+
 ## Ablauf bei einer Änderung
 
 1. Code ändern.
@@ -84,5 +105,5 @@ Der Stop-Hook (`.claude/settings.json`, `tools/manual.py hook`) meldet sich, wen
 3. Nur die betroffenen Abschnitte lesen und anpassen; neue Funktionen bekommen einen eigenen Abschnitt.
 4. Szene anpassen, wenn sich das Bild ändert oder ein neues Bild nötig ist (Kopf `images:` ergänzen).
 5. Bilder erzeugen (Build erfragen), ansehen.
-6. `reviewed:` auf heute, alles in einem Commit.
+6. `reviewed:` auf heute, `tools/manual.py check` ohne offene Punkte, `tools/manual.py export` läuft durch; alles in einem Commit.
 7. `CHANGELOG.md` wie gewohnt; das Handbuch verweist nicht auf Versionen.
