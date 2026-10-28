@@ -75,7 +75,9 @@ if(FK_BUILD_APP)
     ui/OperationA8Test.cpp
     ui/DrumEditorTest.cpp
     ui/MidiToolsTest.cpp
-    ui/ArticulationTest.cpp)
+    ui/ArticulationTest.cpp
+    manual/ManualShot.h
+    manual/KeyEditorScenes.cpp)
   list(APPEND FK_TEST_LIBS fk::services fk::engine fk::ui)
 endif()
 

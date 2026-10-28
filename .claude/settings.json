@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/manual.py\" hook",
+            "timeout": 30,
+            "statusMessage": "Handbuch-Abgleich (docs/manual)"
+          }
+        ]
+      }
+    ]
+  }
+}
