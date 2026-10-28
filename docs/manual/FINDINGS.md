@@ -51,6 +51,69 @@ Typen: **Bug** (falsches Verhalten), **Unstimmigkeit** (verschiedene Stellen ver
 - **Erwartung:** Lane-Button nur mit Symbol oder breiter; Artikulationsköpfe breiter oder Tooltip mit vollem Namen; Werkzeugleiste umbrechen oder Überlaufmenü.
 - **Handbuch:** key-editor.md §2 (Tip zur schmalen Werkzeugleiste), §16, §17; Bilder `key-editor/overview`, `key-editor/controller-lanes`, `key-editor/articulations`.
 
+## F-101 · Unstimmigkeit · Zwei Einstellungsordner „FKAudioSuite“ und „FK Audio Suite“
+
+- **Status:** offen
+- **Code:** `src/app/Application.cpp:57-60` (`appDataFolder()` = `…/FKAudioSuite`: Logs, Berichte, Vorlagen, Content, Updates.txt), `src/plugins/fk/plugins/i18n/SharedSettings.cpp:13-18` (`FKAudioSuite/common.json`) gegen `src/engine/fk/engine/EngineContext.cpp:11` mit `getApplicationName()` = „FK Audio Suite“ → Tracktion `PropertyStorage::getAppPrefsFolder()` legt `~/.config/FK Audio Suite/Settings.xml` an (Audiogerät, Pluginliste, zuletzt geöffnete Projekte).
+- **Beobachtung:** Der Nutzer hat zwei fast gleich heißende Ordner im Profil. Wer „die Einstellungen zurücksetzen“ will, erwischt leicht nur einen.
+- **Erwartung:** ein Ordner, z. B. `PropertyStorage` überschreiben (`getAppPrefsFolder` → `FKAudioSuite`) mit einmaliger Übernahme der alten `Settings.xml`.
+- **Handbuch:** getting-started.md §7.
+
+## F-102 · Text · Deutsche Ordner- und Dateinamen im Nutzerprofil
+
+- **Status:** offen
+- **Code:** `src/app/Application.cpp:62-73` (`Absturz`, Datei „Absturz <Datum>.txt“), `:121` und `:182` (`Haenger`), `:175` (`Vorlagen`), `:200` (`Bibliothek.json`).
+- **Beobachtung:** In der englischen Oberfläche heißen die Ordner, die man über **Help › Show log folder** oder den Diagnosebericht sieht, „Haenger“, „Absturz“, „Vorlagen“. Das englische Handbuch muss die deutschen Namen nennen.
+- **Erwartung:** neutrale englische Namen (Hangs, Crashes, Templates, Library.json), mit Umzug der vorhandenen Ordner beim Start. Zusammen mit F-306 beheben (gleiche Ursache, Projektordner).
+- **Handbuch:** getting-started.md §7.
+
+## F-103 · Text · Bildschirm-Keyboard heißt als MIDI-Gerät immer „Bildschirm-Keyboard“
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/MidiService.cpp:18-21` (`getVirtualKeyboardName()` gibt fest „Bildschirm-Keyboard“ zurück, ohne TRANS).
+- **Beobachtung:** In **Audio settings › MIDI inputs** und in den Eingangslisten der Spuren steht auch in der englischen Oberfläche „Bildschirm-Keyboard“. Der Reiter heißt dagegen **Keyboard** und der Befehl „On-Screen Keyboard“.
+- **Erwartung:** Gerätekennung intern belassen (Tracktion merkt sich das virtuelle Gerät unter seinem Namen), aber den angezeigten Namen übersetzen, wie bei „All MIDI inputs“ (`getAllInputsName`).
+- **Handbuch:** getting-started.md §5.7 (Note). Szene `GettingStartedScenes.cpp` (Bild `getting-started/audio-settings` zeigt den Namen).
+
+## F-104 · UX · Zwei Testton-Bedienelemente in den Audio-Einstellungen
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/AudioSettingsComponent.cpp:18` (`AudioDeviceSelectorComponent` zeigt neben dem Ausgang JUCEs Button **Test**, „Plays a test tone“) und `:19`, `:52-63` (eigener **Test tone** mit **Frequency**).
+- **Beobachtung:** Zwei Knöpfe für fast dasselbe. **Test** spielt einen kurzen Ton, **Test tone** einen Dauerton mit einstellbarer Frequenz. Unklar, welchen man nehmen soll.
+- **Erwartung:** nur einen behalten, z. B. JUCEs Test-Button ausblenden.
+- **Handbuch:** getting-started.md §5.2 (Tabelle 2 und 10), §5.6. Bild `getting-started/audio-settings`.
+
+## F-105 · UX · Spurkopf: R, M, S und Eingangsfeld ohne Tooltip
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/TrackHeader.cpp:25-27` (`armButton ("R")`, `muteButton ("M")`, `soloButton ("S")`) und `inputBox` ohne `setTooltip`. Tooltips gibt es nur für Name, Instrument und Bake (`:112-131`).
+- **Beobachtung:** Einsteiger sehen nur Buchstaben. Dass **R** die Aufnahmebereitschaft ist und das Feld den MIDI- bzw. Audioeingang wählt, erfährt man nirgends. Widerspricht der Regel „jede Funktion sichtbar mit Tooltip“.
+- **Erwartung:** Tooltips wie „Record enable: record on this track (red = armed)“, „Mute“, „Solo“, „Input: MIDI or audio input of the track“.
+- **Handbuch:** getting-started.md §6 Schritt 4 (Aufnahme), Ergebnistabelle Nr. 1.
+
+## F-106 · Text · Studio-Verbindungen: Titel und Hinweis weichen vom Menü ab
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/StudioConnectionsDialog.cpp:48` (Hinweis „…under Studio > Audio and MIDI Settings…“, Menü heißt **Audio and MIDI settings...**), `:100` und `:106` (Titel „Studio Connections“ gegen Menü `src/ui/fk/ui/ProjectComponent.cpp:2111` „Studio connections...“).
+- **Erwartung:** gleiche Schreibweise wie im Menü, Pfad mit „›“ wie die übrigen Hinweise.
+- **Handbuch:** getting-started.md §5.8.
+
+## F-107 · UX · Studio-Verbindungen nur mit offenem Projekt
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ProjectComponent.cpp:2112-2114` (`connections.isEnabled = hasProject`), `src/services/fk/services/TrackService.cpp:256-262`, `:283-288` (`getStudioPorts`/`setPortAlias` brauchen ein Edit, obwohl die Geräte der Engine gehören).
+- **Beobachtung:** Die Namen gelten laut Tooltip für alle Projekte. Einrichten lässt sich das Studio aber erst, nachdem man ein Projekt angelegt hat.
+- **Erwartung:** Ports über `EngineContext`/`DeviceManager` ohne Edit lesen und benennen, Menüeintrag immer aktiv.
+- **Handbuch:** getting-started.md §5.8, Quick reference.
+
+## F-108 · UX · Hänger- und Absturzberichte bleiben unbemerkt
+
+- **Status:** offen
+- **Code:** `src/app/Application.cpp:66-73` (Absturzbericht), `src/app/HangWatchdog.cpp` (Hängerbericht). Beim nächsten Start prüft `Application::initialise` nicht, ob neue Berichte da sind.
+- **Beobachtung:** Berichte entstehen still. Der Nutzer weiß nicht, dass es sie gibt und dass er sie mit **Help › Export diagnostic report...** schicken könnte.
+- **Erwartung:** beim nächsten Start einmal fragen („FK Audio Suite was not closed properly / stopped responding. Export a diagnostic report?“ mit **Export…**, **Not now**).
+- **Handbuch:** getting-started.md §8.
+
 ## F-201 · Unstimmigkeit · Fest eingetragene Tasten in Tooltips und Menütexten
 
 - **Status:** offen
@@ -134,3 +197,169 @@ Typen: **Bug** (falsches Verhalten), **Unstimmigkeit** (verschiedene Stellen ver
 - **Code:** `src/ui/fk/ui/ProjectComponent.cpp:1918` (**Edit › Range › Loop the range**) gegen `src/ui/fk/ui/ArrangeView.cpp:240` (Rechtsklickmenü „Loop to the range“).
 - **Erwartung:** ein Wortlaut.
 - **Handbuch:** project-window.md §3.2.
+
+## F-301 · Bug · Automatische Crossfades werden nicht zurückgelesen
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/ProjectSettingsService.cpp:90-113` (`getSettings` liest `autoCrossfadesProperty` nie, liefert immer den Standard `true`), geschrieben wird es in `:147`; `projectChanged` (`:250`) und `valueTreeChildAdded` (`:262`) wenden `getSettings().autoCrossfades` an.
+- **Beobachtung:** Der Haken „Automatic crossfades on overlapping audio clips“ ist beim Öffnen des Dialogs immer gesetzt. Abhaken entfernt die Crossfades nur von den vorhandenen Clips; neu hinzugefügte Clips und nach dem Wiederöffnen alle Clips bekommen wieder automatische Crossfades.
+- **Erwartung:** `settings.autoCrossfades = node.getProperty (autoCrossfadesProperty, true);` in `getSettings`.
+- **Handbuch:** projects.md §13 (Note unter der Tabelle); Szene `ProjectsScenes.cpp` (Bild `projects/project-settings`, Haken bleibt gesetzt).
+
+## F-302 · UX · Neu/Öffnen schließt das aktuelle Projekt, bevor das neue sicher geht
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ProjectComponent.cpp:1257-1282` (`newProject`) und `:1295-1310` (`openProjectFile`) rufen erst `closeProjectThen` und dann `createProject`/`createProjectFromTemplate`/`openProject`; die Prüfung „Ordner existiert schon“ liegt in `src/services/fk/services/ProjectService.cpp:117` bzw. `:154`.
+- **Beobachtung:** Wählt man für ein neues Projekt einen Namen, dessen Ordner schon existiert, oder ist die zu öffnende Datei beschädigt, kommt die Fehlermeldung erst, nachdem das bisherige Projekt geschlossen wurde; danach ist kein Projekt offen.
+- **Erwartung:** Ordner bzw. Datei vor dem Schließen prüfen (oder neues Edit erst laden, dann tauschen); bei Fehler bleibt das alte Projekt offen.
+- **Handbuch:** projects.md §3 (Note zum vorhandenen Ordner), §4 (Absatz „If the file cannot be read …“).
+
+## F-303 · Bug · Backup wiederherstellen mit „Save“ kann das gewählte Backup löschen
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ProjectComponent.cpp:1485-1503` (Backup-Liste wird vor `closeProjectThen` festgehalten), `src/services/fk/services/ProjectService.cpp:222-241` (`saveProject` legt ein Backup an und ruft `pruneBackups`), `:40-46`, `:343` (`restoreBackup`: „Backup is not readable“).
+- **Beobachtung:** Bei 10 vorhandenen Backups, Wahl des ältesten und „Save“ in der Frage nach ungespeicherten Änderungen löscht das Speichern genau dieses Backup; die Wiederherstellung scheitert mit „Backup is not readable: …“, und es ist kein Projekt mehr offen.
+- **Erwartung:** Inhalt des gewählten Backups vor dem Speichern lesen (oder Pruning hier aussetzen).
+- **Handbuch:** projects.md §12 (Note am Ende).
+
+## F-304 · Bug · Projektnamen mit Punkt werden abgeschnitten
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ProjectComponent.cpp:1274` (Neu) und `:1369` (Save as) nehmen `chosen.getFileNameWithoutExtension()`.
+- **Beobachtung:** „Song v1.2“ ergibt das Projekt „Song v1“ (Ordner und Datei).
+- **Erwartung:** Nur die Endung `.tracktionedit` entfernen, sonst den vollen eingegebenen Namen verwenden.
+- **Handbuch:** projects.md §3 (Note zum Punkt), §7 (Note).
+
+## F-305 · Bug · Save as und Vorlagen lassen Sampler-Spuren am alten Projektordner hängen
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/ProjectService.cpp:259-274` (kopiert nur `Audio/`, `relinkFileReferences` passt nur `source`-Eigenschaften an), `:167-197` (Vorlage übernimmt Plugin-Zustand unverändert); `src/plugins/fk/plugins/SamplerProcessor.cpp:139` speichert den absoluten SFZ-Pfad im Plugin-Zustand; SFZ-Dateien liegen in `Sampler/` (`src/services/fk/services/SamplerService.cpp:132`).
+- **Beobachtung:** Nach Save as, nach Verschieben/Umbenennen des Projektordners und in Projekten aus einer Vorlage laden Sampler-Spuren die SFZ-Datei aus dem ursprünglichen Projektordner; fehlt der, schlägt das Laden fehl („SFZ file not found“).
+- **Erwartung:** `Sampler/` bei Save as mitkopieren und den SFZ-Pfad relativ zum Projekt speichern bzw. beim Laden aus den gespeicherten Regionen neu schreiben.
+- **Handbuch:** projects.md §2 (Note), §7 (Liste „What to know about the copy“), §9.1 (Rules).
+
+## F-306 · Text · Deutsche Ordner- und Dateinamen sichtbar für Nutzer
+
+- **Status:** offen
+- **Code:** `src/app/Application.cpp:169` (Vorlagenordner „Vorlagen“), `src/services/fk/services/ProjectService.cpp:352` (Backup-Name „… vor Wiederherstellung …“); gleiche Art: `src/services/fk/services/ClipService.cpp:1041` („… geklebt.wav“ in Audio/), `src/app/Application.cpp:64` („Absturz“), Hänger-Ordner „Haenger“.
+- **Beobachtung:** Die englische Oberfläche zeigt im Dateimanager und in der Backup-Liste deutsche Namen.
+- **Erwartung:** Englische, feste Namen (z. B. „Templates“, „before restore“, „glued“, „Crashes“, „Hangs“), mit Übernahme vorhandener Vorlagen. Zusammen mit F-102 beheben.
+- **Handbuch:** projects.md §9.1 (Tabelle Vorlagenordner), §10 (Tabelle der Dateinamen), §11.2 und §12 (Erwähnung „vor Wiederherstellung“).
+
+## F-307 · UX · Keine Meldung über fehlende Audiodateien oder Plugins beim Öffnen
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/ProjectService.cpp:200-214` (`openProject` lädt nur das Edit); keine Prüfung in `src/ui/fk/ui/ProjectComponent.cpp:1295-1344`.
+- **Beobachtung:** Fehlen Audiodateien (Projekt auf anderem Rechner, Dateien verschoben) oder Plugins, öffnet das Projekt ohne Hinweis.
+- **Erwartung:** Nach dem Öffnen Liste fehlender Dateien/Plugins zeigen, ideal mit „Suchen…“ zum Neuverknüpfen.
+- **Handbuch:** projects.md §4.1.
+
+## F-308 · UX · Fehlgeschlagene automatische Sicherung bleibt unbemerkt
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/AutosaveService.cpp:64-65` (Fehler nur ins Log), `getLastAutosaveTime` wird in der Oberfläche nirgends genutzt.
+- **Beobachtung:** Kann die automatische Sicherung nicht geschrieben werden (Platte voll, keine Rechte), erfährt der Nutzer nichts; es gibt auch keine Anzeige, wann zuletzt gesichert wurde.
+- **Erwartung:** Einmalige Meldung beim ersten Fehler; Zeit der letzten Sicherung z. B. im Dialog Projekteinstellungen oder als Tooltip anzeigen.
+- **Handbuch:** projects.md §11.1 (Note).
+
+## F-309 · Unstimmigkeit · Bezeichnungen rund um Neu, Vorlagen und Autosave
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ProjectComponent.cpp:1832` „New empty project...“ ↔ `:1125` „Empty project...“; `:1846` „Save as template...“ ↔ `:1138` „Save current project as template...“; `:1139` „Open templates folder (rename, delete)“ nur im Menü des New-Buttons, nicht im Menü **File**; Tooltip `:195` „auto-save“ ↔ `src/ui/fk/ui/ProjectSettingsDialog.cpp:109` „Autosave“ ↔ Tooltip „Automatic backup …“; Menü „Project settings...“ ↔ Fenstertitel `ProjectSettingsDialog.cpp:212` „Project Settings“.
+- **Erwartung:** Ein Wortlaut je Funktion; Eintrag „Open templates folder“ auch unter **File**.
+- **Handbuch:** projects.md §1 (Tabelle New-Menü).
+
+## F-310 · Bug · Undo der Projekteinstellungen erreicht die Eingänge nicht
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/ProjectSettingsService.cpp:149-150` (`applyToInputs`/`applyAutoCrossfades` nur in `setSettings`) und `projectChanged`; der ValueTree-Listener reagiert nur auf `valueTreeChildAdded` (`:262`), nicht auf Eigenschaftsänderungen durch Undo/Redo.
+- **Beobachtung:** Nach Undo eines Schritts „Project settings“ stehen die alten Werte im Projekt, die Eingänge nehmen aber weiter im zuletzt gewählten Format, mit der Bittiefe und dem Aufnahmemodus auf, bis ein Feld geändert oder das Projekt neu geöffnet wird. Ein offener Dialog zeigt die alten Werte nicht.
+- **Erwartung:** `valueTreePropertyChanged` für FKPROJECTSETTINGS beobachten und Einstellungen erneut anwenden.
+- **Handbuch:** projects.md §13 (Note zu Undo).
+
+## F-401 · Bug · Loop und Punch schließen sich nur über den Loop-Button aus
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/TransportBar.cpp:97-104` schaltet Punch aus, wenn Loop eingeschaltet wird. Die anderen Wege rufen nur `setLooping (true)`: Taste Num / (`src/ui/fk/ui/ProjectComponent.cpp:819-820`), Ziehen im Lineal (`src/ui/fk/ui/TimeRuler.cpp:96-97`), Range › Loop (`src/ui/fk/ui/ArrangeView.cpp:212-214`), „Loop this section“ (`src/ui/fk/ui/MarkerTrack.cpp:221-222`).
+- **Beobachtung:** Mit Punch an lassen Num / oder Ziehen im Lineal Loop und Punch beide an. Die nächste Aufnahme lehnt Tracktion dann ab („Recording can be done in either loop mode or punch in/out mode, but not both at the same time!“).
+- **Erwartung:** Ausschluss an einer Stelle, z. B. in `TimelineService::setLooping` oder einem gemeinsamen Helfer.
+- **Handbuch:** transport.md §6.3 (Absatz „Loop and punch exclude each other“), §7 (Meldungstabelle).
+
+## F-402 · Unstimmigkeit · Überlastanzeige ab 90 %, Engine schaltet erst bei 98 % stumm
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/TransportBar.cpp:474-486` (`overloadLoad = 0.9f` → „Overload: sound muted“) gegen Tooltip `:167` („From 98 % the engine mutes“) und `external/tracktion_engine/modules/tracktion_engine/playback/tracktion_DeviceManager.h:273` (`cpuLimitBeforeMuting { 0.98 }`).
+- **Beobachtung:** Zwischen 90 % und 98 % steht „sound muted“, obwohl nichts stumm ist.
+- **Erwartung:** Rot und „Overload: sound muted“ erst ab 98 %, darunter z. B. „Overload risk“.
+- **Handbuch:** transport.md §14; project-window.md §5/§10 (Schwellen, dort keine Textänderung nötig).
+
+## F-403 · UX · Aufnahme-Meldungen der Engine nur als Blase am Mauszeiger
+
+- **Status:** offen
+- **Code:** `src/engine/fk/engine/FkUIBehaviour.h` überschreibt `showWarningMessage`/`showInfoMessage` nicht; Tracktions Standard (`external/tracktion_engine/modules/tracktion_engine/utilities/tracktion_UIBehaviour.cpp:74-87`) zeigt eine BubbleMessage an der Komponente unter der Maus. Quellen: `playback/tracktion_TransportControl.cpp:1484`, `:1490`, `:1609-1610`.
+- **Beobachtung:** Num * ohne scharfe Spur, ein Loop bis 2 s oder Loop+Punch erzeugen nur eine kurze Blase am Mauszeiger; liegt der Zeiger außerhalb des Fensters, sieht man nichts. Die Texte sind Tracktion-Texte (Doppel-Leerzeichen in „possible  when“), nicht übersetzt.
+- **Erwartung:** FkUIBehaviour leitet sie an die Meldungsanzeige des Projektfensters, mit eigenen Texten.
+- **Handbuch:** transport.md §7 (Absatz „When recording does not start“ und Tabelle).
+
+## F-404 · UX · Arrangement folgt dem Positionszeiger nicht
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ArrangeView.cpp:842-869` (timerCallback zeichnet nur den Zeiger, rollt nie); keine Einstellung zum Mitlaufen.
+- **Beobachtung:** Bei der Wiedergabe läuft der Zeiger aus dem sichtbaren Bereich; man muss von Hand rollen.
+- **Erwartung:** Auto-Scroll (seitenweise oder fortlaufend) mit Schalter, wie Cubase „Auto-Scroll“.
+- **Handbuch:** transport.md §3 (Note zum Positionszeiger).
+
+## F-405 · UX · Kein „Zum Ende“
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/Commands.cpp:22-37` (Kategorie Transport ohne Befehl für Projektende; Taste Ende frei); kein Button in `src/ui/fk/ui/TransportBar.cpp`.
+- **Beobachtung:** Zum Anfang springt Pos1, zum Projektende gibt es nichts.
+- **Erwartung:** Befehl „Go to End“ (Ende) und Eintrag im Menü **Transport**.
+- **Handbuch:** transport.md §4 (Note).
+
+## F-406 · UX · Hinweis der retrospektiven Aufnahme erscheint als Fehlerfenster
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/TransportBar.cpp:359` (`onMessage` mit „Nothing to retrieve…“), `src/ui/fk/ui/ProjectComponent.cpp:443` leitet `onMessage` an `showError` (`:2633-2635`, Titel „Error“, Warnsymbol).
+- **Beobachtung:** Ein normaler Hinweis (nichts gespielt, keine Spur scharf) erscheint als **Error**.
+- **Erwartung:** Info-Fenster oder Statushinweis statt Fehlerfenster.
+- **Handbuch:** transport.md §10.
+
+## F-407 · Bug · Samples-Anzeige ohne Audiogerät zählt Sekunden
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/TransportBar.cpp:466` (`juce::jmax (1.0, projectSettings.getDeviceSampleRate())`), `src/services/fk/services/ProjectSettingsService.cpp:168-172` (liefert 0 ohne Gerät).
+- **Beobachtung:** Ohne geöffnetes Audiogerät zeigt die Zeitanzeige im Format Samples die Sekundenzahl (Rate 1).
+- **Erwartung:** Auf die Projekt-Abtastrate zurückfallen (`getSettings().sampleRate`).
+- **Handbuch:** transport.md §5 (letzter Absatz); Szene `TransportScenes.cpp` (kein Samples-Bild).
+
+## F-408 · Text · Locator-Tooltip verspricht „Right-click: set to the cursor“
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/TransportBar.cpp:148`, `:150` (Tooltip) gegen `:312-313` und `:428-429` (Rechtsklick öffnet ein Menü mit „Jump there“ und „Set to cursor“).
+- **Erwartung:** Tooltip z. B. „Right-click: menu (jump there, set to the cursor)“.
+- **Handbuch:** transport.md §6.1.
+
+## F-409 · UX · Automation schreiben ist in neuen Projekten an
+
+- **Status:** offen
+- **Code:** `external/tracktion_engine/modules/tracktion_engine/model/automation/tracktion_AutomationRecordManager.cpp:79-80` (`readingAutomation`/`writingAutomation` standardmäßig `true`); FK setzt nichts (`src/services/fk/services/AutomationService.cpp:376-380`).
+- **Beobachtung:** Der rote Schreib-Button leuchtet in jedem neuen Projekt. Solange die Spuren auf Read stehen, wird nichts geschrieben, es sieht aber nach Automationsaufnahme aus. Cubase startet mit W aus.
+- **Erwartung:** Beim Anlegen eines Projekts Schreiben ausschalten.
+- **Handbuch:** transport.md §13.
+
+## F-410 · UX · Metronom hat keine Einstellungen
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/TransportBar.cpp:113-114` (nur an/aus), `src/services/fk/services/TimelineService.cpp:394-405`. Tracktion bietet `clickTrackGain`, `clickTrackEmphasiseBars`, `clickTrackRecordingOnly`, `clickTrackDevice` (`external/tracktion_engine/modules/tracktion_engine/model/edit/tracktion_Edit.h:882-901`).
+- **Beobachtung:** Lautstärke, Betonung auf Zählzeit 1, Klang, Ausgang und „nur bei Aufnahme“ lassen sich nicht einstellen.
+- **Erwartung:** Metronom-Einstellungen (z. B. Rechtsklick auf den Metronom-Button oder in den Studio-Einstellungen).
+- **Handbuch:** transport.md §9.
+
+## F-411 · Text · Tooltip der retrospektiven Aufnahme nennt nur MIDI (ungeprüft)
+
+- **Status:** offen (vor dem Fix Verhalten prüfen)
+- **Code:** Tooltip der retrospektiven Aufnahme in `src/ui/fk/ui/TransportBar.cpp` nennt nur MIDI; `src/engine/fk/engine/EngineContext.cpp:19-29` (`sizeRetrospectiveBuffers`) gibt auch Audioeingängen, die einer Spur zugewiesen sind, 30 s Puffer.
+- **Beobachtung:** Möglicherweise holt die retrospektive Aufnahme auch Audio zurück; dann sind Tooltip und Handbuch zu eng.
+- **Erwartung:** Verhalten prüfen; Tooltip und transport.md §10 angleichen.
+- **Handbuch:** transport.md §10.

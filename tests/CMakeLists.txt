@@ -79,7 +79,10 @@ if(FK_BUILD_APP)
     manual/ManualShot.h
     manual/KeyEditorScenes.cpp
     manual/ProjectWindowScene.h
-    manual/ProjectWindowScenes.cpp)
+    manual/ProjectWindowScenes.cpp
+    manual/GettingStartedScenes.cpp
+    manual/ProjectsScenes.cpp
+    manual/TransportScenes.cpp)
   list(APPEND FK_TEST_LIBS fk::services fk::engine fk::ui)
 endif()
 

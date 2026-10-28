@@ -17,10 +17,10 @@ Chapters are listed in the order a new user needs them. Chapters without a link 
 
 | # | Chapter | Status |
 |---|---|---|
-| 1 | Getting started: installation, audio setup, first project | planned |
+| 1 | [Getting started](getting-started.md): installation, audio setup, first project | written |
 | 2 | [The project window](project-window.md) | written |
-| 3 | Projects: create, open, save, templates, autosave and backups | planned |
-| 4 | Transport: play, record, loop, metronome, count-in, markers | planned |
+| 3 | [Projects](projects.md): create, open, save, templates, autosave and backups | written |
+| 4 | [Transport](transport.md): play, record, loop, metronome, count-in, markers | written |
 | 5 | Tracks: audio, instrument, MIDI, group, FX and folder tracks | planned |
 | 6 | Recording audio and MIDI: inputs, punch, takes | planned |
 | 7 | Arranging: clips, editing tools, fades, time stretch | planned |
