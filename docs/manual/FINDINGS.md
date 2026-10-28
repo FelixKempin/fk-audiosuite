@@ -121,6 +121,7 @@ Typen: **Bug** (falsches Verhalten), **Unstimmigkeit** (verschiedene Stellen ver
 - **Beobachtung:** Nach einer Änderung unter **Edit › Keyboard shortcuts…** nennen diese Stellen weiter die alte Taste. Der Aufnahme-Tooltip sagt „*“, Menü und Tastenliste sagen „Num *“.
 - **Erwartung:** alle Tasten über `KeyBindings::shortcutText` bzw. `menuText` einsetzen, wie bei den übrigen Toolbar-Buttons.
 - **Handbuch:** project-window.md §4 (Tabelle Zoom-Button, Lower zone), §3.2 (Range-Untermenü), §5 (Transportleiste: Tasten in der Tabelle sind die Standardtasten).
+- **Ergänzung (Kapitel 7):** auch das Kontextmenü der Clips (`src/ui/fk/ui/TrackLane.cpp:628-643`, Tasten wie „\tCtrl+X“ fest im Text).
 
 ## F-202 · Unstimmigkeit · Reiter der unteren Zone heißen anders als Menü und Tooltip
 
@@ -135,6 +136,7 @@ Typen: **Bug** (falsches Verhalten), **Unstimmigkeit** (verschiedene Stellen ver
 - **Code:** `src/ui/fk/ui/Commands.cpp:24-75` gegen die Menüs in `src/ui/fk/ui/ProjectComponent.cpp:1824-2161`: „Left/Right Locator to Cursor“ ↔ „Set left/right locator to playhead“, „Paste at Cursor“ ↔ „Paste at playhead“, „Show Entire Project“ ↔ „Show whole project“ ↔ Zoom-Menü „Whole project“, „Nudge Selection Left/Right“ ↔ „One grid step left/right“, „Keyboard Commands“ (Befehl und Fenstertitel `ShortcutEditor.cpp:295`) ↔ Menü „Keyboard shortcuts...“, „Delete“ ↔ „Delete clips“. Der Befehl „Keyboard Commands“ steht in der Kategorie **View**, der Menüeintrag unter **Edit**. Dazu „cursor“ in Tooltips („Add marker at the cursor“) neben „playhead“ in Menüs; Menü **Studio › Audio and MIDI settings...** öffnet ein Fenster „Audio settings“.
 - **Erwartung:** dieselben Wörter in Menü, Tooltip und Tastenliste (entweder „cursor“ oder „playhead“).
 - **Handbuch:** project-window.md §3 (Menütabellen), §11 (Shortcuts).
+- **Ergänzung (Kapitel 7):** Kontextmenü „Paste at cursor“ (`src/ui/fk/ui/TrackLane.cpp:631`).
 
 ## F-204 · UX · Reihenfolge der Werkzeuge passt nicht zu ihren Tasten
 
@@ -363,3 +365,202 @@ Typen: **Bug** (falsches Verhalten), **Unstimmigkeit** (verschiedene Stellen ver
 - **Beobachtung:** Möglicherweise holt die retrospektive Aufnahme auch Audio zurück; dann sind Tooltip und Handbuch zu eng.
 - **Erwartung:** Verhalten prüfen; Tooltip und transport.md §10 angleichen.
 - **Handbuch:** transport.md §10.
+
+## F-701 · Bug · Abgelehnte Mausbearbeitungen an Clips bleiben stumm
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/TrackLane.cpp:873-876` (`TrackLane::reportError` schreibt nur ins Log, ruft `onError` nicht); betroffen sind Trimmen/Strecken (`:584-587`), Fade ziehen (`:597-598`), Split-, Radier-, Mute- und Kleber-Werkzeug (`:376-420`), Take wählen/Comping (`:555-560`, `:710-730`), Reset fades (`:695-696`). `ArrangeView::reportError` (`src/ui/fk/ui/ArrangeView.cpp:1380-1387`) zeigt dagegen eine Meldung.
+- **Beobachtung:** Auf einer gebackenen Spur passiert beim Trimmen, Faden, Teilen, Radieren usw. einfach nichts. Auch „Stretching works from a quarter up to four times the length.“ und „The clip follows the project tempo …“ beim Alt+Ziehen sieht der Nutzer nie. Dieselbe Aktion über Menü oder Taste zeigt die Meldung.
+- **Erwartung:** `TrackLane::reportError` ruft zusätzlich `onError (services::errorText (error))`.
+- **Handbuch:** arranging.md §21 (Note zu stummen Mausbearbeitungen); recording.md §11.4 (Take-Funktionen: wählen, Comping, Verteilen, Aufräumen).
+
+## F-702 · UX · Doppelklick legt mit jedem Werkzeug einen MIDI-Clip an
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/TrackLane.cpp:791-804` (`mouseDoubleClick` prüft das Werkzeug nicht und ruft `createMidiClipAt`).
+- **Beobachtung:** Auf einer Instrumenten- oder MIDI-Spur erzeugt ein Doppelklick ins Leere auch mit Lupe, Bereichs-, Split-, Radier-, Kleber- oder Mute-Werkzeug einen Ein-Takt-Clip. Mit der Lupe wird dabei zweimal gezoomt, mit dem Bereichswerkzeug zugleich ein Bereich begonnen.
+- **Erwartung:** Leeren MIDI-Clip per Doppelklick nur mit Auswahlwerkzeug (und Stift) anlegen.
+- **Handbuch:** arranging.md §2.1 (Absatz „Double-click“), §18 (Tabelle).
+
+## F-703 · Bug · Clip auf andere Spur ziehen zählt ausgeblendete Spuren mit
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ArrangeView.cpp:1364-1378` berechnet `trackDelta` aus den angezeigten Zeilen (`displayedTracks`, `:881-890`, ohne ausgeblendete Spuren und ohne Inhalt zugeklappter Ordner, `src/services/fk/services/TrackService.cpp:668-697`). `ClipService::moveClips` (`src/services/fk/services/ClipService.cpp:796-870`) wendet den Versatz auf `te::getAudioTracks (*edit)` an, also auf alle Spuren. Gleiches Prinzip bei Einfügen/Duplizieren mehrerer Spuren (`makeEntries`/`insertEntries`, `:1104-1205`).
+- **Beobachtung:** Liegt zwischen Quell- und Zielspur eine ausgeblendete Spur oder ein zugeklappter Ordner, landet der Clip auf einer anderen Spur als der hervorgehobenen („Move here“), womöglich auf einer unsichtbaren.
+- **Erwartung:** Zielspur direkt übergeben (Handle statt Index-Differenz) oder Versatz über die angezeigten Spuren rechnen.
+- **Handbuch:** arranging.md §6.2.
+
+## F-704 · UX · Automatische Crossfades sind im Arrangement unsichtbar
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ClipView.cpp` `paint` zeichnet nur die eigenen Fades (`fadeInSeconds`/`fadeOutSeconds`), nicht das Überblenden nach `te::IDs::autoCrossfade` (gesetzt in `src/services/fk/services/ProjectSettingsService.cpp:253-268`).
+- **Beobachtung:** Überlappende Audio-Clips liegen einfach übereinander. Man hört die Überblendung, sieht aber weder, dass es eine gibt, noch wie lang sie ist.
+- **Erwartung:** Überlappungsbereich mit gekreuzten Rampen zeichnen (wie Cubase).
+- **Handbuch:** arranging.md §12.2.
+
+## F-705 · Unstimmigkeit · „One grid step left/right“ im Menü aktiv ohne Auswahl
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ProjectComponent.cpp:1937-1942` (Menüeinträge nur an `hasProject` gebunden) gegen `:2783-2784` (Nudge-Buttons brauchen ausgewählte Clips).
+- **Beobachtung:** Ohne Auswahl sind die Buttons grau, die Menüeinträge aktiv und tun nichts.
+- **Erwartung:** Menüeinträge wie die Buttons sperren (`canPerformClipAction (ClipAction::remove)`).
+- **Handbuch:** arranging.md §6.3.
+
+## F-706 · Unstimmigkeit · Alt+Ziehen kopiert im Key Editor, im Arrangement nicht
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/TrackLane.cpp:348-373` und `:603-611` (Ziehen verschiebt immer, Alt wirkt nur an der rechten Kante als Strecken) gegen Key Editor (Alt+Ziehen kopiert Noten, key-editor.md §7).
+- **Beobachtung:** Wer im Key Editor mit Alt kopiert, erwartet das auch bei Clips (Cubase: Alt+Ziehen kopiert). Im Arrangement geht Kopieren nur über Kopieren/Einfügen oder Duplizieren.
+- **Erwartung:** Alt+Ziehen in der Clipmitte kopiert die Auswahl (Kopien halbtransparent wie im Key Editor), Alt an der rechten Kante bleibt Strecken.
+- **Handbuch:** arranging.md §6.2 (Note).
+
+## F-601 · Unstimmigkeit · „Keep takes“ legt bei normaler Aufnahme keine Takes an
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ProjectSettingsDialog.cpp:79-83` (Eintrag „Keep takes“, Tooltip „earlier ones stay selectable as takes“), `src/services/fk/services/ProjectSettingsService.cpp:274-281` (setzt Tracktions Merge-Modus 0 „Overlay newly recorded clips onto edit“); Tracktion `playback/devices/tracktion_WaveInputDevice.cpp:895-905` fügt den neuen Clip mit `DeleteExistingClips::no` ein.
+- **Beobachtung:** Bei einer normalen Aufnahme (ohne Loop) liegt der neue Clip über dem alten. Der alte bleibt ein eigener Clip darunter und ist kein Take des neuen. Takes entstehen nur bei Loop-Aufnahme und über „Add take from file...“.
+- **Erwartung:** Entweder überlagerte Aufnahmen als Takes in einen Clip übernehmen (wie Cubase „Verlauf behalten“), oder Eintrag und Tooltip ehrlich benennen (z. B. „Overlay“).
+- **Handbuch:** recording.md §6 (Tabelle Audio-Modi und Absatz darunter), §8; projects.md §13 (Tabelle Nr. 5).
+
+## F-602 · Bug · R-Button ohne Eingang leuchtet, Spur ist aber nicht scharf
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/TrackHeader.cpp:48-50` und `src/ui/fk/ui/Inspector.cpp:296-302` (`setClickingTogglesState (true)`); `src/services/fk/services/TrackService.cpp:928-932` (`setArmed` tut ohne Eingang nichts, meldet nichts).
+- **Beobachtung:** Bei einer Spur mit „No input“ wird R beim Klick rot, die Spur ist aber nicht scharf. Da sich am Projekt nichts ändert, bleibt der Button bis zum nächsten Neuaufbau rot. Record meldet dann „Recording is only possible when at least one active input device is assigned to a track“.
+- **Erwartung:** R ohne Eingang deaktivieren oder nach dem Klick den echten Zustand zeigen, mit Hinweis „Choose an input first“.
+- **Handbuch:** recording.md §3 (Note), §16 (Tabelle); tracks.md §13.
+
+## F-603 · UX · Eingangsfeld im Spurkopf wird nie angezeigt
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/TrackHeader.cpp:205-237` (Feld erst ab 70 px Restbreite); Kopfbreite fest `theme::trackHeaderWidth = 220` (`src/ui/fk/ui/Theme.h:44`).
+- **Beobachtung:** Nach R, M, S, Automation und Bake (Instrumentenspur zusätzlich Instrument-Button) bleiben höchstens 64 px. Das Feld ist auf keiner Spurart sichtbar, der Code dafür ist toter Code. Eingänge lassen sich nur im Inspector wählen.
+- **Erwartung:** Eingangswahl im Spurkopf erreichbar machen (zweite Zeile ab einer Spurhöhe, breitere Spurliste oder Kontextmenü) oder das Feld entfernen.
+- **Ergänzung (Kapitel 5):** `TrackHeader.cpp:236` (`resized`) überschreibt die Sichtbarkeit, die `rebuildInputChoices` je Spurart setzt (`:428`). Würde das Feld gezeigt, böten Gruppen-, FX- und Rack-Ausgangsspuren dort echte Audioeingänge an (der Inspector zeigt richtig „Groups have no input“).
+- **Handbuch:** recording.md §2 (Note); tracks.md §4; Szene `RecordingScenes.cpp` (Bild `recording/arm-and-input`, Spurkopf).
+
+## F-604 · UX · Aufnahme erscheint im Verlauf nur als „Change“
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/TransportService.cpp:81-102` (`record()` ohne `beginUndoStep`); Tracktion legt die Clips beim Stopp an, die Transaktion bleibt unbenannt; `src/services/fk/services/ProjectService.cpp:509-510` ersetzt leere Namen durch „Change“.
+- **Beobachtung:** In Edit › History... steht nach einer Aufnahme nur „Change“. Man erkennt nicht, welcher Schritt die Aufnahme ist.
+- **Erwartung:** Vor dem Aufnahmestart einen benannten Undo-Schritt beginnen (z. B. „Recording“), der die beim Stopp entstehenden Clips umfasst.
+- **Handbuch:** recording.md §15 (Tabelle und Absatz darunter).
+
+## F-605 · Bug · „Distribute takes to the tracks below“ legt MIDI-Takes auf dieselbe Spur
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/ClipService.cpp:1410-1432` ruft `clip->unpackTakes (false)`. Tracktion `model/clips/tracktion_MidiClip.cpp:615-628` nimmt bei `toNewTracks == false` immer die eigene Spur; `model/clips/tracktion_WaveAudioClip.cpp:500-516` nimmt bei Audio die folgenden Spuren ohne Prüfung der Spurart.
+- **Beobachtung:** Bei MIDI-Clips landen alle Takes als „Take #1“, „Take #2“… übereinander auf derselben Spur. Bei Audio landen Takes auf beliebigen folgenden Spuren, auch auf Instrument-, Gruppen- oder FX-Spuren; das erlaubt ClipService sonst nicht (`clipFitsTrack`).
+- **Erwartung:** Je Take eine passende Spur darunter (fehlt sie oder passt die Art nicht: neue Spur gleicher Art direkt darunter), für Audio und MIDI gleich.
+- **Handbuch:** recording.md §11.4 (Absatz „Distribute takes to the tracks below works differently…“).
+
+## F-606 · Unstimmigkeit · Nach Loop-Aufnahme ist bei Audio der erste, bei MIDI der letzte Durchgang aktiv
+
+- **Status:** offen
+- **Code:** Tracktion `playback/devices/tracktion_WaveInputDevice.cpp:930-940` (Clip zeigt auf die Datei des ersten Durchgangs, weitere per `addTake`, aktueller Take bleibt 0); `model/clips/tracktion_MidiClip.cpp:439-464` (`addTake` setzt `currentTake` auf den zuletzt hinzugefügten).
+- **Beobachtung:** Dieselbe Bedienung ergibt verschiedene Ergebnisse: Audio spielt nach dem Stopp Take 1, MIDI den letzten Take.
+- **Erwartung:** Einheitlich, üblich ist der letzte Durchgang (Cubase), z. B. nach der Aufnahme `setCurrentTake (numTakes - 1)` für Audio-Clips.
+- **Handbuch:** recording.md §11.1.
+
+## F-607 · UX · Alle Spuren mit demselben MIDI-Eingang spielen gleichzeitig
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/TrackService.cpp:904-909` (MIDI-Eingänge immer `MonitorMode::on`), `:367-372` (jede neue Instrumentenspur bekommt „All MIDI inputs“).
+- **Beobachtung:** Mit mehreren Instrumentenspuren erklingen beim Spielen alle Instrumente zugleich, nicht nur das der gewählten Spur. Man muss die anderen Spuren von Hand auf „No input“ stellen.
+- **Erwartung:** Live-Spiel nur auf der ausgewählten oder scharf geschalteten Spur (wie Cubase „MIDI Thru für ausgewählte Spur“), oder eine Einstellung dafür.
+- **Handbuch:** recording.md §4 (Note), §16 (Tabelle).
+
+## F-608 · Bug · Bereichsanzeige des Bildschirm-Keyboards folgt dem Rollen nicht
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/VirtualKeyboard.cpp:17` (JUCE-Rollpfeile sichtbar), `:58-71` (`updateRangeLabel` nur in `scrollToMiddleC` und `shiftOctave`).
+- **Beobachtung:** Nach dem Rollen mit den Pfeilen an den Enden der Tastatur (oder dem Mausrad) zeigt die Anzeige weiter die alte tiefste Taste.
+- **Erwartung:** Anzeige bei jeder Änderung der tiefsten sichtbaren Taste nachführen (z. B. Timer oder eigene Rollpfeile).
+- **Handbuch:** recording.md §5 (Note); Szene `RecordingScenes.cpp` (Bild `recording/keyboard`).
+
+## F-609 · UX · Inspector: Eingang, R, M und S ohne Tooltip
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/Inspector.cpp:69-71` (`armButton ("R")`, `muteButton ("M")`, `soloButton ("S")`), `inputBox` und `outputBox` ohne `setTooltip`.
+- **Beobachtung:** Wie F-105 für den Spurkopf. Da der Inspector der einzige Ort für die Eingangswahl ist (F-603), wiegt das schwerer.
+- **Erwartung:** Tooltips wie bei F-105; zusammen beheben. Die Szene `RecordingScenes.cpp` kann die Elemente dann über `findByTooltip` finden statt über Typ und Text.
+- **Handbuch:** recording.md §3 (Tabelle); Szene `RecordingScenes.cpp` (Hilfsfunktion `findVisible`).
+
+## F-501 · Bug · Menü Track › FX track (sends) tut nichts
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ProjectComponent.cpp:1987` (Eintrag `itemFx`), Enum `:150`; `menuItemSelected` (`:2170-2581`) hat keinen `case itemFx`. Der Toolbar-Button ruft `addFxTrack()` (`:297`, `:1712`).
+- **Beobachtung:** Die Wahl von **Track › FX track (sends)** legt keine Spur an und meldet nichts. FX-Spuren lassen sich nur über den Button **FX** anlegen.
+- **Erwartung:** `case itemFx: addFxTrack(); break;`
+- **Handbuch:** tracks.md §3.6 (Note); project-window.md §3 (Tabelle Track-Menü).
+
+## F-502 · UX · MIDI-Spur an einem Gerät ohne MIDI-Ausgang: leere Ausgangsliste, „MIDI to: Master“
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/TrackService.cpp:164-178` (`getAvailableOutputs` liefert für MIDI-Spuren nur MIDI-Ausgänge), `:430` (`outputName` = „Master“), `src/services/fk/services/ExternalMidiService.cpp:42-48` (ohne MIDI-Ausgang bleibt die Spur am Master), `src/ui/fk/ui/Inspector.cpp:466` („MIDI to: {name}“).
+- **Beobachtung:** Ohne eingeschalteten MIDI-Ausgang ist das Feld **Output** leer und der Inspector zeigt „MIDI to: Master“. Die Spur spielt nichts, und kein Hinweis sagt, was zu tun ist.
+- **Erwartung:** Eintrag wie „No MIDI output (Studio › Audio and MIDI settings)“ im Feld und in der Beschriftung; neu eingeschaltete Ausgänge eventuell automatisch zuweisen.
+- **Handbuch:** tracks.md §5.3; Szene `TracksScenes.cpp` (Bild `tracks/inspector-midi-device`).
+
+## F-503 · Text · Ordner-Tooltip nennt nur Rechtsklick zum Hineinlegen
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/FolderHeader.cpp:27` („Tracks go in via right-click on the track header.“) gegen `src/ui/fk/ui/ProjectComponent.cpp:204` („drag or right-click tracks into it“) und `src/ui/fk/ui/ArrangeView.cpp:1300-1333` (Ziehen auf die Mitte des Ordnerkopfs legt hinein).
+- **Erwartung:** z. B. „Tracks go in by dragging them onto the folder or via right-click on the track header.“
+- **Handbuch:** tracks.md §11.2.
+
+## F-504 · UX · Keine Tastenbefehle für Spuren
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/Commands.cpp:21-80` und `src/ui/fk/ui/Commands.h`: kein Befehl für Spur anlegen, löschen, duplizieren, umbenennen, Mute/Solo/Record der ausgewählten Spur.
+- **Beobachtung:** Diese Funktionen gehen nur mit der Maus und lassen sich im Shortcut-Editor nicht belegen. Cubase bietet M/S/R für die ausgewählte Spur und belegbare Befehle zum Anlegen.
+- **Erwartung:** Befehle (Kategorie „Track“) mit Standardtasten für Mute/Solo/Record der ausgewählten Spur, ohne Standardtaste für Anlegen/Löschen/Duplizieren.
+- **Handbuch:** tracks.md §1 (Note).
+
+## F-505 · UX · Neue Spuren landen am Ende und werden nicht ausgewählt
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/TrackService.cpp:105-108` (`ensureNumberOfAudioTracks` → `TrackInsertPoint::getEndOfTracks`), `:568` (Ordner ebenso); `src/ui/fk/ui/ArrangeView.cpp:1070-1073` (Auswahl bleibt, wenn die alte Spur noch existiert).
+- **Beobachtung:** Jede neue Spur hängt ganz unten auf oberster Ebene, auch wenn eine Spur in einem Ordner ausgewählt ist. Der Inspector zeigt weiter die alte Spur.
+- **Erwartung:** Wie Cubase: unter der ausgewählten Spur (im selben Ordner) einfügen und auswählen.
+- **Handbuch:** tracks.md §3 (Absatz „Selection“).
+
+## F-506 · Bug · Spur anlegen zerfällt in mehrere Undo-Schritte
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/TrackService.cpp:93` („Add track“), danach `:372` → `setAudioInput` mit eigenem `beginUndoStep` „Assign input“ (`:879`); `src/services/fk/services/ExternalMidiService.cpp:30`, `:46` (`setOutput` → „Assign output“, `TrackService.cpp:206`), `:52`; `src/services/fk/services/RackService.cpp:56`, `:160`; `src/services/fk/services/SamplerService.cpp` (Drum-Map und Regionen nach `createInstrumentTrack`); `src/ui/fk/ui/TrackHeader.cpp:396-403` („New folder with this track“: drei Schritte).
+- **Beobachtung:** Nach dem Anlegen einer Instrumenten-, Sampler-, Rack- oder externen MIDI-Spur nimmt das erste Ctrl+Z nur die Eingangs- oder Ausgangszuweisung zurück; die Spur bleibt stehen. Der Verlauf zeigt zwei oder drei Schritte für eine Aktion.
+- **Erwartung:** Ein Undo-Schritt je Anlegen (interne Aufrufe ohne eigenes `beginUndoStep`, wie `appendAudioTrack`).
+- **Handbuch:** tracks.md §3 (Absatz Undo), §15 (Note).
+
+## F-507 · Text · Tooltip des Inspector-Buttons „Inserts“/„Group“ spricht vom Instrument
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/Inspector.cpp:63-65` (fester Tooltip „Bake Inserts: render the instrument and the marked inserts …“), `:942` (Beschriftung „Group“ bei Gruppen).
+- **Beobachtung:** Auf Audiospuren (ohne Instrument) und Gruppenspuren (backen samt zuführender Spuren) beschreibt der Tooltip etwas anderes, als der Button tut.
+- **Erwartung:** Tooltip je Spurart in `refreshBake` setzen.
+- **Handbuch:** tracks.md §14 (Tabelle der Bake-Buttons).
+
+## F-508 · Unstimmigkeit · Farbmenü des Ordners ohne Haken bei der aktuellen Farbe
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/FolderHeader.cpp:150-159` (kein `isTicked`) gegen `src/ui/fk/ui/TrackHeader.cpp:314` (`item.isTicked`).
+- **Erwartung:** Aktuelle Ordnerfarbe abhaken wie bei Spuren.
+- **Handbuch:** tracks.md §11.5.
+
+## F-509 · Unstimmigkeit · „New folder with this track“ heißt nur „Folder“
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/TrackHeader.cpp:397` (`createFolderTrack (TRANS ("Folder"))`) gegen `src/ui/fk/ui/ProjectComponent.cpp:1703-1708` („Folder {number}“).
+- **Beobachtung:** Ordner über Toolbar oder Menü heißen „Folder 1“, „Folder 2“ …; Ordner aus dem Spurmenü alle „Folder“.
+- **Erwartung:** Dieselbe Benennung (mit Nummer).
+- **Handbuch:** tracks.md §3.7.
+
+## F-510 · Bug · Überschrift „Sends“ im Inspector wird nie angezeigt
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/Inspector.cpp:175` setzt den Text von `sendsLabel`, `:633-634` gibt ihm Platz und Sichtbarkeit, aber die Liste der Kinder (`:333-348`) enthält `sendsLabel` nicht; es wird nirgends per `addAndMakeVisible` eingefügt.
+- **Beobachtung:** Die Send-Zeilen stehen ohne Überschrift direkt unter den Bake-Buttons; über ihnen bleibt eine leere 14-px-Zeile. Beim Schreiben von Kapitel 5 gefunden (Szene fand das Label nicht).
+- **Erwartung:** `&sendsLabel` in die Liste der Kinder aufnehmen (`addChildComponent`, Sichtbarkeit regelt `resized`).
+- **Handbuch:** tracks.md §5 (Absatz „Sends (7)“); Szene `TracksScenes.cpp` (Bild `tracks/inspector-audio`, Markierung 7 dann mit Überschrift).

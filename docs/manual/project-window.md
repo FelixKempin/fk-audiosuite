@@ -185,7 +185,7 @@ Editing clips and ranges in depth: see the chapter *Arranging*. Undo and history
 | **Sampler track from audio file...** | Asks for an audio file and adds a sampler track that plays it. |
 | **Sampler track (empty drum kit)** | Adds a sampler track with an empty drum kit. |
 | **Group track** | Adds a group track (target for other tracks). |
-| **FX track (sends)** | Adds an FX track, fed by sends. |
+| **FX track (sends)** | Meant to add an FX track, fed by sends. Currently does nothing; use the **FX** button in the toolbar. <!-- FIX F-501: menu entry will add an FX track --> |
 | **Folder track** | Adds a folder track. |
 | **Duplicate track** | Copies the selected track with plugins, settings, clips and automation. |
 | **Hide track** | Hides the selected track. Hidden tracks keep playing. |

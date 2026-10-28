@@ -235,7 +235,7 @@ This section covers only the transport side of recording: how to start and stop 
 
 1. Arm at least one track for recording (see the chapter *Recording*).
 2. Click **Record** (9), press **Num \*** (on keyboards without a number pad, **\*** works as well), or choose **Transport › Record**.
-3. Recording starts. The **Record** button turns red and the **Play** button green. On the armed tracks you see the new clip grow while you record.
+3. Recording starts. The **Record** button turns red and the **Play** button green. On every armed track a red block labelled **Recording...** grows from the start point to the playhead. The clip itself appears when you stop.
 4. Stop with **Stop** (8) or **Space**.
 
 Where recording starts depends on the settings:
