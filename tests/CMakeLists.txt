@@ -77,7 +77,9 @@ if(FK_BUILD_APP)
     ui/MidiToolsTest.cpp
     ui/ArticulationTest.cpp
     manual/ManualShot.h
-    manual/KeyEditorScenes.cpp)
+    manual/KeyEditorScenes.cpp
+    manual/ProjectWindowScene.h
+    manual/ProjectWindowScenes.cpp)
   list(APPEND FK_TEST_LIBS fk::services fk::engine fk::ui)
 endif()
 
