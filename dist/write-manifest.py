@@ -21,7 +21,7 @@ import hashlib
 import json
 import os
 import subprocess
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -85,7 +85,7 @@ def main() -> None:
         "release": {
             "version": args.version,
             "track": args.track,
-            "built_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "built_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "source": {
                 **({"repo": args.repo} if args.repo else {}),
                 **({"commit": commit} if commit else {}),
