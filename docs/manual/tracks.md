@@ -94,7 +94,7 @@ Sampler tracks (**Track › Sampler track from audio file...**, **Sampler track 
 
 The Inspector names the type of the selected track under its name: **Audio track, mono**, **Audio track, stereo**, **Instrument track** (also for the MIDI tracks of a rack instrument), **Group track**, **FX track (aux return)**, **Output of a rack instrument** or **MIDI track (external device)**.
 
-The ruler, the signature track (tempo, time signature, key) and the marker track are not tracks in this sense: they always stay at the top of the arrangement, cannot be moved, hidden or deleted and have no header in the track list ([The project window §7](project-window.md#7-arrangement-area)). Markers: [Transport §11](transport.md#11-markers). Tempo, time signature and key: see the chapter *Signature track*.
+The ruler, the signature track (tempo, time signature, key) and the marker track are not tracks in this sense: they always stay at the top of the arrangement, cannot be moved, hidden or deleted and have no header in the track list ([The project window §7](project-window.md#7-arrangement-area)). Markers: [Transport §11](transport.md#11-markers). Tempo, time signature and key: see the chapter [Signature track](signature-track.md).
 
 ---
 
@@ -122,7 +122,7 @@ The new track is called **Audio** *n* and has **no input**. Choose an input in t
 - A **mono** track offers each active input channel of your audio interface on its own (**Input 1**, **Input 2** …), a **stereo** track offers channel pairs (**Input 1+2** …). Names you gave in **Studio › Studio connections...** replace these names.
 - Mono or stereo is fixed when you create the track. To change it, create a new track of the other kind and move the clips.
 
-Recording audio: see the chapter *Recording audio and MIDI*.
+Recording audio: see the chapter [Recording audio and MIDI](recording.md).
 
 ### 3.2 Instrument tracks
 
@@ -131,7 +131,7 @@ Recording audio: see the chapter *Recording audio and MIDI*.
 1. Click **Instrument** in the toolbar, or open **Track › Instrument track**.
 2. Choose an instrument in the menu.
 
-The instrument menu lists your favourites first (section **Favorites**), then one submenu per category, then **By vendor** with one submenu per manufacturer. FK instruments appear with their name only, other plugins with their format in brackets, for example *Name  (VST3)*. If no instrument is known, the menu only says *No plugins found (Plugin Manager: Search and Scan)*; scan your plugins in the plugin manager (see the chapter *Instruments and effects*).
+The instrument menu lists your favourites first (section **Favorites**), then one submenu per category, then **By vendor** with one submenu per manufacturer. FK instruments appear with their name only, other plugins with their format in brackets, for example *Name  (VST3)*. If no instrument is known, the menu only says *No plugins found (Plugin Manager: Search and Scan)*; scan your plugins in the plugin manager (see the chapter [Instruments and effects](instruments-and-effects.md)).
 
 The new track is named after the instrument plus a number, for example **FK Synth 5**. It listens to **All MIDI inputs**, so any switched-on MIDI keyboard plays it right away, without arming the track ([Getting started §5.7](getting-started.md#57-midi-inputs)). If the collective device *All MIDI inputs* is switched off, the track starts without an input.
 
@@ -144,7 +144,7 @@ If the instrument cannot be loaded, the track is not created and a window titled
 | **Track › Instrument from library** › *library* › *instrument* | A track that plays the chosen instrument of an installed library with FK Sampler. The track gets the instrument's name. Entries read *category / name*. Without a library: *No library installed yet (Studio > Content Manager)*. |
 | **Track › Sampler track from audio file...** | Asks for an audio file (*Sample for the sampler track*; WAV, AIFF, FLAC, OGG, MP3), copies it into the project folder and creates an FK Sampler track that plays it. The track is named after the file. |
 | **Track › Sampler track (empty drum kit)** | An FK Sampler track called **Drum kit** with an empty kit and the GM drum map, ready for the Drum Editor. |
-| Double-click an instrument in the **Instruments** tab (**F10**) | A new track with this instrument (see the chapter *Instruments and effects*). |
+| Double-click an instrument in the **Instruments** tab (**F10**) | A new track with this instrument (see the chapter [Instruments and effects](instruments-and-effects.md)). |
 | Dropping a MIDI file where no instrument track fits | A new instrument track with FK Synth ([Projects §15](projects.md#15-importing-audio-and-midi-files)). |
 
 If FK Sampler is missing, the sampler entries show *FK Sampler is not registered.*
@@ -194,7 +194,7 @@ The track is called **Group** *n*. A group track is always stereo and has no inp
 
 The track is called **FX** *n* (numbered among the FX tracks only). It receives the sends of all other tracks. The sum of the sends enters the FX track before its inserts, so the effects you insert (reverb, delay) process the sum of all sends. The return itself does not take an insert slot. As soon as an FX track exists, every other track shows a send to it in the Inspector ([§5](#5-the-track-in-the-inspector), number 7). FX tracks have no input, no sends of their own and cannot be baked.
 
-Sends in depth: see the chapter *MixConsole*.
+Sends in depth: see the chapter [MixConsole](mixconsole.md).
 
 ### 3.7 Folder tracks
 
@@ -251,7 +251,7 @@ More in the header:
 - **Lock.** A baked track, or a track that feeds a baked group, shows a lock at the top right ([§14](#14-baking-a-track-overview)).
 - **Indent.** Tracks inside a folder are indented by one step per folder level ([§11](#11-folder-tracks)).
 
-**Automation button (5).** Click it to show the automation lanes of the track below its header, click again to hide them. If the track has no automation lane yet, an empty lane is created (an editing step, *Add automation lane*); choose its parameter in the lane header. Whether the lanes are shown is not saved with the project. Automation in depth: see the chapter *Automation*.
+**Automation button (5).** Click it to show the automation lanes of the track below its header, click again to hide them. If the track has no automation lane yet, an empty lane is created (an editing step, *Add automation lane*); choose its parameter in the lane header. Whether the lanes are shown is not saved with the project. Automation in depth: see the chapter [Automation](automation.md).
 
 **Open instrument (6).** Opens the plugin window of the instrument. If the track has no instrument, a window says *This track has no instrument.* The Inspector has the same button, and double-clicking the instrument name there does the same ([§5.1](#51-instrument-tracks)).
 
@@ -391,7 +391,8 @@ The MIDI tracks and output channels of a rack instrument show a rack section:
 Program and bank are sent to the device when you change them, when you change the channel, and every time playback starts, so the device has the right sound even after it was switched off. With **No program change**, nothing is sent.
 
 <!-- FIX F-502: without a MIDI output, the Output field may explain what to do instead of staying empty -->
-If your computer has no switched-on MIDI output, the **Output** field is empty and the label reads **MIDI to: Master**: the track plays nothing. Switch on a MIDI output in **Studio › Audio and MIDI settings...** ([Getting started §5](getting-started.md#5-audio-and-midi-setup)), then choose it under **Output**.
+<!-- FIX F-1901: a switch for MIDI outputs may be added to the audio settings -->
+If your computer has no usable MIDI output, the **Output** field is empty and the label reads **MIDI to: Master**: the track plays nothing. MIDI outputs cannot be switched on or off in FK Audio Suite: new outputs are switched on automatically when the device appears. Connect the device, then choose it under **Output**.
 
 These tracks have no bake section.
 
@@ -520,7 +521,7 @@ All tracks have the same height. Change it with the two toolbar buttons:
 
 - The height ranges from **56** to **160** pixels; the default is **72**.
 - Folder rows always stay 34 pixels high, automation lanes 60 pixels.
-- A track with open take lanes is taller by the take lanes (see the chapter *Recording audio and MIDI*).
+- A track with open take lanes is taller by the take lanes (see the chapter [Recording audio and MIDI](recording.md)).
 
 <!-- FIX F-208: the track height may be remembered -->
 The track height is not saved: after a restart the tracks are 72 pixels high again.
@@ -645,7 +646,7 @@ For MIDI tracks to an external device, the list shows the MIDI outputs instead (
 
 Groups can be routed into other groups, and those into the master. If a routing would create a loop, it is refused with *Routing loop:* *name* *already feeds into this track.* Changing the output is an editing step (*Assign output*).
 
-Sends to FX tracks: [§5](#5-the-track-in-the-inspector) (number 7). Routing in depth: see the chapter *MixConsole*.
+Sends to FX tracks: [§5](#5-the-track-in-the-inspector) (number 7). Routing in depth: see the chapter [MixConsole](mixconsole.md).
 
 ---
 
@@ -663,13 +664,13 @@ Sends to FX tracks: [§5](#5-the-track-in-the-inspector) (number 7). Routing in 
 <!-- FIX F-602: R may stay off (with an explanation) when the track has no input -->
 **Record enable needs an input.** Arming only works when the track has an input ([§12.1](#121-choosing-an-input)). New audio tracks have no input. On a track without input, **R** still lights up when you click it, but the track is **not** armed and nothing is recorded; the button goes dark again with the next change in the project. Choose an input first, then click **R**.
 
-Recording: [Transport §7](transport.md#7-recording-from-the-transport) and the chapter *Recording audio and MIDI*.
+Recording: [Transport §7](transport.md#7-recording-from-the-transport) and the chapter [Recording audio and MIDI](recording.md).
 
 ---
 
 ## 14. Baking a track (overview)
 
-Baking (in other programs: *freeze*) renders a track to audio so that its instrument and effects no longer need CPU. A baked track plays the rendered file; its instrument and baked inserts cannot be edited until you unbake it. This section shows where the bake functions are; the chapter *Track bake (freeze)* explains them in depth.
+Baking (in other programs: *freeze*) renders a track to audio so that its instrument and effects no longer need CPU. A baked track plays the rendered file; its instrument and baked inserts cannot be edited until you unbake it. This section shows where the bake functions are; the chapter [Track bake (freeze)](track-bake.md) explains them in depth.
 
 **Bake button in the header** ([§4](#4-the-track-header), number 7) opens a menu:
 

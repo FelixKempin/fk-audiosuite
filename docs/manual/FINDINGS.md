@@ -1029,3 +1029,418 @@ Typen: **Bug** (falsches Verhalten), **Unstimmigkeit** (verschiedene Stellen ver
 - **Beobachtung:** Ist der verfügbare Platz beim ersten Layout klein, wird die gespeicherte Höhe auf 160 px gesetzt und bleibt so, auch wenn das Fenster danach größer wird. In den Handbuch-Szenen (Fenster 1000×900) zeigte die MixConsole deshalb nur rund 130 px, ohne Fader. Erst Doppelklick auf den Trenner stellt 360 px wieder her.
 - **Erwartung:** Gewünschte Höhe getrennt von der angezeigten halten: nur beim Layout klemmen, `lowerZoneHeight` nicht überschreiben (nur Ziehen und Doppelklick ändern sie).
 - **Handbuch:** project-window.md (Abschnitt zur Größe der unteren Zone, nach dem Fix prüfen); Szene `MixConsoleScenes.cpp` (setzt die Höhe über den Trenner zurück, danach überflüssig).
+
+## F-1501 · Bug · „Clear list“ und „Remove …“ im Plugin-Manager entfernen die FK-Plugins bis zum Neustart
+
+- **Status:** offen (im Code bestätigt, nicht ausprobiert)
+- **Code:** `src/ui/fk/ui/PluginManagerWindow.cpp:48-51` (JUCEs `PluginListComponent` arbeitet auf der ganzen `knownPluginList`, in die `src/engine/fk/engine/EngineContext.cpp:66-71` auch die FK-Plugins einträgt); JUCE `juce_PluginListComponent.cpp:562-608` (`Clear list` → `list.clear()`; `removeMissingPlugins` fragt `doesPluginStillExist`, das für das Format „FK“ `false` liefert).
+- **Beobachtung:** **Options › Clear list**, **Remove any plug-ins whose files no longer exist** sowie **Remove plug-in from list** oder Entf auf einer FK-Zeile werfen FK Synth, FK Sampler, FK Trim und die übrigen FK-Plugins aus der Liste; ein Scan holt sie nicht zurück. Bis zum Neustart fehlen sie in allen Menüs; Sampler-Spuren scheitern mit „FK Sampler is not registered.“, danach geöffnete Projekte finden ihre FK-Plugins vermutlich nicht.
+- **Erwartung:** FK-Plugins in „Search and Scan“ nicht anbieten (gefilterte Liste) oder nach jeder Änderung `registerInternalPlugins()` erneut ausführen.
+- **Handbuch:** instruments-and-effects.md §4 (Bild), §4.4 (Caution); Szene `InstrumentsAndEffectsScenes.cpp` (Bild `instruments-and-effects/plugin-manager-search-scan`).
+
+## F-1502 · Text · Interne deutsche Kategorienamen in „Search and Scan“ und in der Suche von „My Plugins“
+
+- **Status:** offen
+- **Code:** `src/plugins/fk/plugins/*Processor.cpp`, `MidiEffectProcessors.cpp` (`info()`: Kategorien „Dynamik“, „Raum“, „Verzerrung“, „Kanal“, „MIDI-Effekt“); JUCE zeigt sie in der Spalte **Category**. `src/ui/fk/ui/PluginLibraryPanel.cpp:133-134` sucht in der deutschen Kennung `plugin.group`, nicht in `getGroupDisplayName()`. FK Trim erscheint in „Search and Scan“, weil `channelTrim::isChannelTrim` nur in `collectPlugins` filtert.
+- **Beobachtung:** In der englischen Oberfläche findet „Dynamics“ in **My Plugins** keine Dynamik-Plugins, „Dynamik“ schon. „Search and Scan“ zeigt deutsche Kategorien und das sonst unsichtbare FK Trim.
+- **Erwartung:** Suche auch mit `getGroupDisplayName (plugin.group)`; FK-Kategorien englisch oder neutral (Stichwortliste in `automaticGroup` anpassen); FK Trim aus der Liste (mit F-1501).
+- **Handbuch:** instruments-and-effects.md §3.3 (Note), §4 (Bild), §4.1 (Note).
+
+## F-1503 · UX · Eigene Scan-Ordner werden nicht gemerkt
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/PluginManagerWindow.cpp:48-51` (`PluginListComponent (…, nullptr)`); ohne `PropertiesFile` liest und speichert JUCE den Suchpfad nicht (`juce_PluginListComponent.cpp:248-249`, `:347-350`).
+- **Beobachtung:** Jeder Scan startet wieder mit den Standardordnern; eigene Ordner muss man vor jedem Scan neu hinzufügen.
+- **Erwartung:** `PropertiesFile` übergeben oder die Pfade je Format in den Engine-Einstellungen halten.
+- **Handbuch:** instruments-and-effects.md §4.2 (Note).
+
+## F-1504 · UX · Kategorie-Auswahl in „My Plugins“ zeigt nie „automatic“
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/PluginLibraryPanel.cpp:248-251` zeigt immer die gültige Kategorie; `PluginInfo` (`src/services/fk/services/PluginService.h:20-31`) verrät nicht, ob sie automatisch ist.
+- **Beobachtung:** Man sieht nicht, ob eine Kategorie selbst gewählt oder abgeleitet ist.
+- **Erwartung:** `PluginInfo` um `groupIsAutomatic` ergänzen und „automatic (Dynamics)“ zeigen.
+- **Handbuch:** instruments-and-effects.md §3.3 (Note).
+
+## F-1505 · UX · Keine Presets für Instrumente
+
+- **Status:** offen
+- **Code:** Presets nur im Kontextmenü von `InsertSlot` (`src/ui/fk/ui/InsertSlot.cpp:134-176`); das Instrument ist kein Insert (`PluginService::getInserts` lässt `isSynth()` weg, `src/services/fk/services/PluginService.cpp:425-434`); `LibraryService::getItems` (`:96-103`) listet trotzdem Instrument-Presets; Leerhinweis `src/ui/fk/ui/InstrumentBrowser.cpp:130` verweist auf Inserts.
+- **Beobachtung:** Eigene Klänge eines Instruments lassen sich in der DAW weder speichern noch laden noch löschen. Die Art „Preset“ im Instrumenten-Browser bleibt praktisch immer leer.
+- **Erwartung:** Preset-Menü am Instrument (Inspector, Spurkopf, auch Rack-Instrumente); Leerhinweis anpassen.
+- **Handbuch:** instruments-and-effects.md §6.1, §11.
+
+## F-1506 · Unstimmigkeit · Spurname aus dem Instrumenten-Browser ohne Nummer
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/LibraryService.cpp:237` (`createInstrumentTrack (plugin.name, …)`) gegen `src/ui/fk/ui/ProjectComponent.cpp:1687` und `:2239` (Name + Spurzahl).
+- **Beobachtung:** Über Menü oder Button heißt die Spur „FK Synth 5“, per Doppelklick im Browser „FK Synth“; mehrere Browser-Spuren tragen denselben Namen.
+- **Erwartung:** Gleiche Benennung an beiden Stellen (Nummer im Service vergeben). Verwandt mit F-206/F-509.
+- **Handbuch:** instruments-and-effects.md §6.3 (Note).
+
+## F-1507 · UX · „Remove own tag“ bietet auch automatische Tags an
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/InstrumentBrowser.cpp:279-284` (Untermenü aus allen `item.tags`); `src/services/fk/services/LibraryService.cpp:218-219`.
+- **Beobachtung:** Wählt man ein automatisches Tag, kommt „Only your own tags can be removed.“; welche Tags eigene sind, ist nirgends zu sehen.
+- **Erwartung:** Eigene Tags getrennt führen; nur diese im Untermenü.
+- **Handbuch:** instruments-and-effects.md §6.4 (Note).
+
+## F-1508 · Text · Platzhalter der Browser-Suche nennt „favorite“
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/InstrumentBrowser.cpp:102` („… (e.g. piano, strings, favorite)“); `src/services/fk/services/LibraryService.cpp:133` durchsucht nur Name, Quelle und Tags.
+- **Beobachtung:** „favorite“ findet keine Favoriten.
+- **Erwartung:** Platzhalter ohne „favorite“ oder Favoriten als automatisches Tag.
+- **Handbuch:** instruments-and-effects.md §6.2 (Note); Bild `instruments-and-effects/instrument-browser`.
+
+## F-1509 · UX · FK Sampler meldet Ladefehler nur im Log
+
+- **Status:** offen
+- **Code:** `src/plugins/fk/plugins/SamplerProcessor.cpp:213` (`chooseFile`: Fehler nur ins Log) und `:163` (`setStateInformation` ebenso).
+- **Beobachtung:** Scheitert **Load...**, passiert sichtbar nichts. Fehlt die SFZ-Datei beim Öffnen des Projekts, bleibt die Spur still, vermutlich mit „0 regions“ in der Statuszeile.
+- **Erwartung:** Fehler in der Statuszeile anzeigen und beim Öffnen des Projekts melden (zusammen mit F-307).
+- **Handbuch:** instruments-and-effects.md §14.2 (Note).
+
+## F-1510 · UX · Notenwerte des Arpeggiators nicht nach Länge sortiert
+
+- **Status:** offen
+- **Code:** `src/plugins/fk/plugins/MidiEffectProcessors.cpp:12` (`rates`: 1/4, 1/8, 1/8 Triplet, 1/16, 1/16 Triplet, 1/32, 1/2).
+- **Beobachtung:** „1/2“ steht am Ende; FK Delay sortiert nach Länge.
+- **Erwartung:** Nach Länge sortieren, gespeicherte Projekte über Index-Abbildung übernehmen (Parameter-Version erhöhen).
+- **Handbuch:** instruments-and-effects.md §14.13 (Tabelle).
+
+## F-1511 · Bug · Mehr als 500 Instrumente: Menü-IDs im Track-Menü überlappen
+
+- **Status:** offen (im Code bestätigt, nicht ausprobiert)
+- **Code:** `src/ui/fk/ui/ProjectComponent.cpp:175-177` (`instrumentMenuBase = 1000`, `rackMenuBase = 1500`, `recentMenuBase = 2000`); `menuItemSelected` prüft Rack (`:2215`) vor Instrument (`:2229`).
+- **Beobachtung:** Ab dem 501. Instrument legt **Track › Instrument track** ein Rack-Instrument mit einem anderen Instrument an; ab dem 501. Eintrag unter **Track › Rack instrument** öffnet sich ein zuletzt benutztes Projekt.
+- **Erwartung:** ID-Blöcke mit großem Abstand oder Menüeinträge mit eigener Aktion (`PopupMenu::Item::setAction`).
+- **Handbuch:** instruments-and-effects.md §5 (Note).
+
+## F-1601 · Bug · Abwurf-Vorschau aus dem Medien-Browser behandelt MIDI-Dateien wie Audio
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ArrangeView.cpp:459-469` (`itemDragEnter`/`itemDragMove` rufen `previewFor (x, y)` = Spurart Audio und setzen kein Label) gegen `fileDragMove` `:414-420` (Instrumentenspur für MIDI, Label „New instrument track“); Zeichnen `:344-346` fällt ohne Label auf „New audio track“ zurück.
+- **Beobachtung:** Zieht man eine MIDI-Datei aus dem Medien-Browser über eine Instrumentenspur, wird die Spur nicht hervorgehoben und unten steht „New audio track“. Der Abwurf landet trotzdem richtig. Aus dem Dateimanager stimmt die Vorschau.
+- **Erwartung:** `itemDragEnter`/`itemDragMove` wie `fileDragMove` über `filesFromDragDescription` führen (gemeinsame Hilfsfunktion).
+- **Handbuch:** media-browser.md §8 (Note zur Hervorhebung).
+
+## F-1602 · Text · Vorhör-Tooltip verspricht Leertaste, die das Projekt startet
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/MediaBrowser.cpp:21` („Audition the selected file (Space in the browser)“); kein `keyPressed`, `juce::TreeView` kennt keine Leertaste; die Taste geht an `ProjectComponent::keyPressed` (`src/ui/fk/ui/ProjectComponent.cpp:796`) → **Play / Stop**.
+- **Beobachtung:** Leertaste im Dateibaum startet bzw. stoppt die Projektwiedergabe statt der Vorschau.
+- **Erwartung:** Leertaste im fokussierten Medien-Browser schaltet die Vorschau (wie Cubase MediaBay), oder Tooltip ohne Tastenangabe.
+- **Handbuch:** media-browser.md §5 (Note „Despite the tooltip …“).
+
+## F-1603 · UX · Vorhören: Dateiwechsel braucht zwei Klicks, Lesefehler ohne Meldung
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/MediaBrowser.cpp:143-156` (`togglePreview`: läuft eine Vorschau, wird nur gestoppt; Fehler von `preview.play` nur ins Log), `:102` `selectionChanged` stoppt/wechselt die Vorschau nicht; `PreviewService` ohne Lautstärke.
+- **Beobachtung:** Wählt man während der Vorschau eine andere Datei, spielt die alte weiter; Play stoppt dann nur, für die neue Datei braucht es einen zweiten Klick. Eine unlesbare Datei tut einfach nichts. Keine Vorhör-Lautstärke, kein automatisches Vorhören.
+- **Erwartung:** Play bei anderer Auswahl startet die neue Datei; optional Auto-Vorhören, Lautstärkeregler, Meldung in der Infozeile bei unlesbarer Datei.
+- **Handbuch:** media-browser.md §5 (zweite Note).
+
+## F-1604 · Bug · Medien-Browser: nur Ordner ausgewählt, Infozeile zeigt alte Datei, Buttons bleiben aktiv
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/MediaBrowser.cpp:102-131` (`selectionChanged`: Infozeile nur bei `selectedFile.existsAsFile()` neu gesetzt, `playButton.setEnabled (! midi)` auch ohne Datei; `importButton` nie deaktiviert).
+- **Beobachtung:** Klickt man nach einer Datei auf einen Ordner, verschwindet die Wellenform, die Infozeile nennt weiter die vorige Datei. Vorhören und Einfügen sind klickbar und tun nichts.
+- **Erwartung:** Ohne ausgewählte Datei den Hinweistext zeigen und beide Buttons deaktivieren.
+- **Handbuch:** media-browser.md §4 (Note).
+
+## F-1605 · Text · Content-Manager: deutscher Abbrechen-Button, Menünamen im Hinweis weichen ab
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ContentManagerDialog.h:73` (`cancelButton { "Abbrechen" }`, ohne TRANS); Hinweis `src/ui/fk/ui/ContentManagerDialog.cpp:75` („Track > Instrument from Library“, „Instrument Browser“) gegen Menü `src/ui/fk/ui/ProjectComponent.cpp:1976` („Instrument from library“) und Reiter „Instruments“ (`LowerZone.cpp:25`); Menühinweis `ProjectComponent.cpp:1974` („Studio > Content Manager“) gegen `:2117` („Content Manager (free libraries)...“).
+- **Beobachtung:** Im englischen Programm heißt der Button „Abbrechen“. Die Hinweise nennen Menüpfade anders als die Menüs.
+- **Erwartung:** `TRANS ("Cancel")`; Hinweistexte mit den echten Menünamen (vgl. F-202).
+- **Handbuch:** media-browser.md §9.2, §9.3; Bild `media-browser/content-manager`.
+
+## F-1606 · UX · Medien-Browser ohne eigene Orte, Favoriten, Suche und ohne gemerkten Ordner
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/MediaBrowser.cpp:12-14` (nur Home, Music, Desktop), `:72` (beim Start immer `rootHome`), Filter fest `MediaBrowser.h:47` (kein Suchfeld).
+- **Beobachtung:** Sample-Ordner auf anderen Laufwerken erreicht man nur über den Baum ab Home/Musik/Desktop. Nach jedem Neustart steht der Browser wieder auf Home. Keine Suche, kein Typfilter.
+- **Erwartung:** eigene Orte (Favoriten), letzten Ordner und aufgeklappte Ordner merken, Suchfeld und Typfilter (wie Cubase MediaBay).
+- **Handbuch:** media-browser.md §3; Bild `media-browser/overview`.
+
+## F-1607 · UX · Content-Paket entfernen löscht Gigabytes ohne Rückfrage
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ContentManagerDialog.cpp:52-57` (Klick → `removePackage`), `:128` (`content.remove` sofort).
+- **Beobachtung:** **Remove** löscht das installierte Paket (bis 2,3 GB Download) sofort und unwiderruflich. Spuren mit Instrumenten daraus laden sie beim nächsten Öffnen nicht mehr.
+- **Erwartung:** Rückfrage mit Paketname und Größe, ggf. Hinweis auf Projekte, die das Paket nutzen.
+- **Handbuch:** media-browser.md §9.4.
+
+## F-1701 · Bug · Bake Inserts mit Markierung: Kanal-Trim zählt als Insert
+
+- **Status:** offen (im Code bestätigt, nicht ausprobiert)
+- **Code:** `src/services/fk/services/BakeService.cpp:42-45` (`isInsert` = jedes `ExternalPlugin`, das kein Synth ist, also auch FK Trim), `:108-118`, `:215-217` (`bakedInserts`); dagegen `src/services/fk/services/PluginService.cpp:864-875` (`getExternalPlugins` lässt den Trim weg); `MixerService::ensureTrim` (`src/services/fk/services/MixerService.cpp:115-128`) setzt den Trim vor alle Inserts.
+- **Beobachtung:** Wurde an der Spur je Trim oder Phase verändert, backt „Inserts“ mit Slots 1 bis n markiert nur den Trim und die Slots 1 bis n−1; Slot n bleibt live, `bakedInserts` ist um eins zu groß. Ohne Markierung stimmt es.
+- **Erwartung:** `isInsert` schließt `channelTrim::isChannelTrim` aus; der Freeze-Punkt kommt hinter den n-ten echten Insert.
+- **Handbuch:** track-bake.md §5.2 (Note).
+
+## F-1702 · Bug · Bake und Unbake hinterlassen einen unbenannten Undo-Schritt „Change“
+
+- **Status:** offen (aus dem Code abgeleitet, nicht ausprobiert)
+- **Code:** `src/services/fk/services/BakeService.cpp:146-149` und `:189` (Freeze-Punkt einsetzen/entfernen mit dem UndoManager des Edits, ohne `beginUndoStep`); Tracktion `tracktion_AudioTrack.cpp:94-98` (FreezeUpdater taut auf, wenn der Freeze-Punkt fehlt); `ProjectService.cpp:509-510` („Change“).
+- **Beobachtung:** Nach dem Backen steht „Change“ im Verlauf. Ctrl+Z entfernt den Freeze-Punkt, die Spur wird live; Datei und `fkBake` bleiben. Redo backt nicht wieder. ADR 0009 sagt: „Bake ist kein Undo-Schritt“.
+- **Erwartung:** Freeze-Punkt ohne UndoManager setzen/entfernen, sodass Bake/Unbake keine Spur in der Historie hinterlassen.
+- **Handbuch:** track-bake.md §15 (Note).
+
+## F-1703 · Bug · Gruppen-Bake: Sends und Sidechain-Signale der zuführenden Spuren verstummen
+
+- **Status:** offen (aus dem Code abgeleitet, nicht ausprobiert)
+- **Code:** Tracktion `tracktion_EditNodeBuilder.cpp:1071-1095` (gefrorene Spur: nur Datei und Plugins, keine `getDirectInputTracks`), `:1986-2030`; `BakeService.cpp:155` (Render nur der Gruppe).
+- **Beobachtung:** Ist eine Gruppe gebacken, laufen ihre zuführenden Spuren nicht. Deren Sends an FX-Spuren und ihre Rolle als Sidechain-Quelle fallen weg und sind nicht in der Datei. Fader/Pan/Mute der zuführenden Spuren sind bedienbar, wirken aber nicht.
+- **Erwartung:** Sends zuführender Spuren weiter versorgen (oder Bake mit Hinweis ablehnen bzw. warnen); wirkungslose Regler sperren oder kennzeichnen.
+- **Handbuch:** track-bake.md §6 (Note), §13 (Note).
+
+## F-1704 · Bug · Nachklang nach dem letzten Clip wird gerendert, aber nicht abgespielt
+
+- **Status:** offen (aus dem Code abgeleitet, nicht ausprobiert)
+- **Code:** Tracktion `tracktion_AudioTrack.cpp:1119-1120` (Render bis `getLengthIncludingInputTracks()` plus `findEndAllowance`) gegen `tracktion_EditNodeBuilder.cpp:1077-1078` (WaveNode spielt nur bis `getLengthIncludingInputTracks()`).
+- **Beobachtung:** Hall- oder Delay-Fahnen am Ende einer gebackenen Spur werden abgeschnitten.
+- **Erwartung:** Abspielbereich um den gerenderten Nachlauf verlängern (Länge der Datei).
+- **Handbuch:** track-bake.md §16.
+
+## F-1705 · UX · Routing in und aus einer gebackenen Gruppe nicht gesperrt
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/TrackService.cpp:201` (`setOutput` ohne `bakeLock`-Prüfung).
+- **Beobachtung:** Eine zuführende Spur lässt sich aus der gebackenen Gruppe herausrouten; sie spielt dann live und steckt noch in der Datei (doppelt). Eine neu hineingeroutete Spur ist sofort gesperrt, aber nicht in der Datei (stumm).
+- **Erwartung:** Ausgangswechsel von/zu einer gebackenen Gruppe mit `lockedError` ablehnen.
+- **Handbuch:** track-bake.md §16.
+
+## F-1706 · UX · Aufnahme auf gebackene Spur nicht gesperrt
+
+- **Status:** offen (aus dem Code abgeleitet, nicht ausprobiert)
+- **Code:** `src/services/fk/services/TrackService.cpp` (`setArmed`) ohne `bakeLock`; Tracktion nimmt in gefrorene Spuren auf.
+- **Beobachtung:** R lässt sich an einer gebackenen Spur einschalten. Eine Aufnahme legt dort einen Clip an (an der Clip-Sperre vorbei), der nicht zu hören ist.
+- **Erwartung:** Scharfschalten gebackener (und in Gruppen gebackener) Spuren mit der Bake-Meldung ablehnen.
+- **Handbuch:** track-bake.md §10 (Note).
+
+## F-1707 · UX · Automation gebackener Plugins bearbeitbar, aber wirkungslos
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/AutomationService.*` (keine `bakeLock`-Prüfung); gefrorene Plugins laufen nicht (`tracktion_EditNodeBuilder.cpp:1436`).
+- **Beobachtung:** Punkte in Lagen gebackener Plugins lassen sich ändern; hörbar wird das erst nach Unbake und neuem Bake.
+- **Erwartung:** Solche Lagen sperren (Meldung wie bei Clips) oder als gebacken kennzeichnen.
+- **Handbuch:** track-bake.md §13 (Note).
+
+## F-1708 · UX · Offene Plugin-Fenster bleiben beim Backen offen und bedienbar
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/MixConsole.cpp:182-188` (vorhandenes Fenster wird ohne Sperrprüfung nach vorn geholt); `BakeService::bakeUpTo` schließt keine Fenster.
+- **Beobachtung:** War das Fenster eines Plugins vor dem Backen offen, bleibt es bedienbar; Änderungen wirken bis zum Unbake nicht.
+- **Erwartung:** Fenster gebackener Plugins beim Backen schließen (bzw. beim Öffnen auch bestehende Fenster prüfen).
+- **Handbuch:** track-bake.md §9 (Note).
+
+## F-1709 · UX · Tempo- und Taktartänderung nach dem Backen ohne Hinweis
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/SignatureService.*` (keine Prüfung auf gebackene Spuren); die Bake-Datei liegt in Sekunden.
+- **Beobachtung:** Nach einer Tempoänderung folgen MIDI- und tempofolgende Clips, die Bake-Datei nicht; gebackene Spuren laufen auseinander, ohne Meldung.
+- **Erwartung:** Hinweis bei Tempoänderung, wenn gebackene Spuren existieren (oder Neu-Backen anbieten).
+- **Handbuch:** track-bake.md §12.
+
+## F-1710 · Text · Tooltip „Click: unbake“ am gebackenen Bake-Button
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/TrackHeader.cpp:130` gegen `:81` (Klick öffnet immer das Menü, `showBakeMenu`).
+- **Beobachtung:** Der Tooltip verspricht Lösen per Klick, es öffnet sich aber das Bake-Menü.
+- **Erwartung:** z. B. „Baked: instrument/inserts run as audio. Click: menu with Unbake“ (Szene sucht weiter über „Baked: instrument“).
+- **Handbuch:** track-bake.md §8 (Note); Szene `TrackBakeScenes.cpp` (Bild `track-bake/baked-track`).
+
+## F-1711 · UX · Bake-Feld im Insert-Slot ohne Tooltip, Markierungen auf gebackener Spur unsichtbar
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/InsertSlot.cpp:35-41`, `:66-76`; `src/ui/fk/ui/Inspector.cpp:803-804` (`setBakeMarked (! baked && …)`, `onBakeMarkClicked` auch auf gebackenen Slots).
+- **Beobachtung:** Das kleine Feld erklärt sich nicht selbst. Auf einer gebackenen Spur ändert ein Klick die Markierung unsichtbar, und das nächste „Inserts“ nutzt sie.
+- **Erwartung:** Tooltip („Bake up to here: marks slots 1 to n“); Markierung auf gebackenen Spuren sichtbar halten oder das Feld dort sperren.
+- **Handbuch:** track-bake.md §5.2; Szene `TrackBakeScenes.cpp` (Bilder `track-bake/inspector-marks`, `track-bake/inspector-baked`).
+
+## F-1712 · Bug · Sidechain gebackener Inserts beim Rendern
+
+- **Status:** offen (Verdacht aus dem Code, vor dem Fix ausprobieren)
+- **Code:** Tracktion `tracktion_AudioTrack.cpp:1114` (`r.tracksToDo` nur die eigene Spur), `tracktion_Renderer.cpp:31` (`allowedTracks`); die Sidechain-Quellspur ist nicht enthalten.
+- **Beobachtung:** Ein gebackener Insert mit Sidechain-Quelle (z. B. FK Compressor von Kick) bekommt beim Rendern vermutlich kein Steuersignal; die Datei klänge ohne die Sidechain-Wirkung.
+- **Erwartung:** Ausprobieren; falls bestätigt, Sidechain-Quellen beim Bake mitrendern oder den Bake solcher Inserts mit Hinweis ablehnen.
+- **Handbuch:** track-bake.md §13 (Tip).
+
+## F-1801 · Bug · Abbrechen des Exports blockiert bis 10 s und beendet den Thread gewaltsam
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ExportDialog.cpp:28` (`ThreadWithProgressWindow` mit Standard-Timeout 10000 ms), `:34-50` (`run()` prüft `threadShouldExit()` nie); `src/services/fk/services/ExportService.cpp` `render()` (Schleife `while (task->runJob() …)` ohne Abbruch, danach `MessageManager::callSync`); JUCE `timerCallback` → `stopThread (10000)` auf dem Message-Thread, `juce_Thread.cpp:264-271` `killThread()`.
+- **Beobachtung:** Nach **Cancel** wartet der Message-Thread in `stopThread`, der Render-Thread läuft weiter und hängt in `callSync`. Nach 10 s wird der Thread gewaltsam beendet; die Oberfläche steht so lange. `ScopedRenderStatus`/`ScopedTrackMuter` werden nicht abgebaut (Verdacht: Edit bleibt „rendert“ markiert, Stummschaltungen bleiben). Eine halbe Datei bleibt liegen. Auch bei schon fertigem Export erscheint „Export cancelled.“.
+- **Erwartung:** Abbruch an den Render-Job weitergeben, aufräumen, unfertige Datei löschen, Meldung nur bei echtem Abbruch.
+- **Handbuch:** exporting.md §15.
+
+## F-1802 · Bug · Export-Dialog bietet Bittiefen und Sampleraten an, die das Format nicht schreiben kann
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ExportDialog.cpp:197-201` (32 bit float für alle verlustfreien Formate), `:208-215` (88200/96000 Hz für alle Formate); Prüfung erst in Tracktion `tracktion_RenderSpecification.cpp:415-436`.
+- **Beobachtung:** FLAC/AIFF mit 32 bit float oder MP3 mit 88200/96000 Hz scheitern erst nach Export Now mit „Export not possible: flac doesn't support 32 bit. Supported bit depths: 16, 24“.
+- **Erwartung:** Nur passende Einträge anbieten oder sperren, bei Formatwechsel auf einen gültigen Wert springen.
+- **Handbuch:** exporting.md §5 (Note), §7 (Note).
+
+## F-1803 · UX · Mixdown und MIDI-Datei überschreiben ohne Rückfrage, Stems nummerieren
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/ExportService.cpp` `render()` (`file.deleteFile()`), `exportMidi()` (`target.deleteFile()`); Stems über `te::createPerTrackSpecifications` → `getNonexistentChildFile`.
+- **Beobachtung:** Ein zweiter Mixdown mit dem vorgeschlagenen Namen ersetzt den ersten still; Stems legen dagegen neue Dateien mit Nummer an.
+- **Erwartung:** Vor dem Überschreiben fragen (Replace / Keep both) oder einheitlich nummerieren.
+- **Handbuch:** exporting.md §4.
+
+## F-1804 · UX · Eigener Export-Zielort geht bei Format- oder Zielwechsel verloren
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ExportDialog.cpp:368-388` (`updateTargetFile` behält die Datei nur im Export-Ordner; Stems und MIDI immer neu).
+- **Beobachtung:** Wer mit „Change...“ `~/Desktop/Mix.wav` wählt und danach MP3 einstellt, bekommt wieder `Export/<Projekt>.mp3`.
+- **Erwartung:** Gewählten Ordner und Namen behalten, nur die Endung anpassen.
+- **Handbuch:** exporting.md §4.
+
+## F-1805 · Text · Export-Dialog: Range, Bit depth, Zielpfad und Stem-Häkchen ohne Tooltip; „Loop range“ statt Locatoren
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ExportDialog.cpp:191-201` (rangeBox, bitDepthBox ohne `setTooltip`), `:248-260` (Stem-Häkchen), `fileName`; Titel `"Export"` ohne `TRANS` (`:497`).
+- **Beobachtung:** Vier Bedienelemente erklären sich nicht. „Loop range“ nutzt den Bereich zwischen L und R auch bei ausgeschaltetem Loop; im Transport heißen sie Locatoren.
+- **Erwartung:** Tooltips (z. B. „Range: whole project or the range between the left and right locator“), Begriff angleichen.
+- **Handbuch:** exporting.md §2; Szene `ExportingScenes.cpp` (Suche über Text).
+
+## F-1806 · UX · Stems folgen Mute und Solo ohne Hinweis
+
+- **Status:** offen (aus dem Code, vor dem Fix ausprobieren)
+- **Code:** `src/services/fk/services/ExportService.cpp` `exportStems()`; Tracktion `TrackMuteState` gilt auch beim Rendern.
+- **Beobachtung:** Ein stummgeschalteter Track, oder bei Solo jeder andere, ergibt eine stille Stem-Datei; der Dialog sagt nichts.
+- **Erwartung:** Stems unabhängig von Mute/Solo rendern oder warnen bzw. betroffene Spuren kennzeichnen.
+- **Handbuch:** exporting.md §12 (Note), §14.
+
+## F-1807 · UX · Stem-Liste enthält Spuren ohne Audio und ausgeblendete Spuren ohne Kennzeichnung
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ExportDialog.cpp:248-262` (`tracks.getAudioTracks()`, Zusatz nur für group/FX).
+- **Beobachtung:** MIDI-Spuren für externe Geräte, Rack-Ausgänge und ausgeblendete Spuren stehen ohne Zusatz in der Liste und sind vorgewählt; MIDI-Spuren ergeben vermutlich stille Dateien.
+- **Erwartung:** MIDI-Spuren weglassen oder abwählen, Rack-Ausgänge/ausgeblendete Spuren kennzeichnen.
+- **Handbuch:** exporting.md §12; Bild `exporting/stems`.
+
+## F-1808 · Text · MP3-Hinweis nennt das Linux-Paket auf allen Systemen und fehlt bei Stems
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ExportDialog.cpp:181`, `:424-425` (Hinweis nur bei Mixdown); `ExportService.cpp` („package libmp3lame0“); Tracktion `tracktion_LAMEManager.cpp` (Windows `libmp3lame.dll`, macOS `.dylib`, Rückfall `/usr/bin/lame`).
+- **Beobachtung:** Unter Windows ist „install the package libmp3lame0“ falsch. Bei Stems ist MP3 ausgegraut ohne Erklärung. Dass ein Neustart nötig ist (Prüfung einmal je Sitzung), steht nirgends.
+- **Erwartung:** Hinweis je System, auch bei Stems, mit „restart FK Audio Suite“.
+- **Handbuch:** exporting.md §10.
+
+## F-1809 · UX · Export-Einstellungen werden nicht gemerkt
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ExportDialog.cpp` Konstruktor (alle Felder auf Vorgabe), keine Ablage im Projekt oder in den Einstellungen.
+- **Beobachtung:** Jedes Öffnen beginnt wieder mit WAV, 24 bit, Off …; Ziel, Format, Normalize und Stem-Auswahl müssen jedes Mal neu gesetzt werden.
+- **Erwartung:** Letzte Einstellungen je Projekt merken (wie Cubase).
+- **Handbuch:** exporting.md §1.
+
+## F-2001 · Bug · „Default“ gibt eine Taste zurück, die inzwischen ein anderer Befehl hat
+
+- **Status:** offen (aus dem Code abgeleitet, nicht ausprobiert)
+- **Code:** `src/ui/fk/ui/Commands.cpp:286` (`resetToDefault` löscht nur die eigene Abweichung, ohne die Standardtasten anderen Befehlen wegzunehmen) gegen `:257` (`setKeys` nimmt sie weg und meldet es); `find` (`:226`) läuft in Enum-Reihenfolge.
+- **Beobachtung:** Range Tool bekommt „1“ (Select Tool verliert sie), danach Select Tool › **Default**: Beide Befehle zeigen „1“, die Taste löst stumm nur Select Tool aus. „Eine Taste gehört höchstens einem Befehl“ (Commands.h) stimmt dann nicht mehr.
+- **Erwartung:** `resetToDefault` wie `setKeys` behandeln: Standardtasten anderen Befehlen wegnehmen und im Hinweis nennen.
+- **Handbuch:** keyboard-shortcuts.md §8 (Caution).
+
+## F-2002 · UX · Werkzeugtasten 1–8 schalten im Key Editor die Werkzeuge des Arrangements
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/NoteGrid.cpp:414-453` (`keyPressed` behandelt nur Entf/Rücktaste, Strg+A und Pfeile); die Taste wandert zu `src/ui/fk/ui/ProjectComponent.cpp:796-801` → `performCommand`. Die Werkzeuge des Key Editors haben keine Befehle.
+- **Beobachtung:** Wer im Key Editor „1“ für das Auswahlwerkzeug drückt, wechselt unsichtbar das Werkzeug im Arrangement; der Key Editor bleibt beim Stift. In Cubase wirken die Werkzeugtasten im fokussierten Editor. Gleiche Ursache wie F-901/F-1002/F-1102 (Tasten wandern aus Editoren ans Projektfenster).
+- **Erwartung:** Bei Fokus im Notenraster wählen 1 (Select), 8 (Pencil) und 5 (Eraser) die Werkzeuge des Key Editors, andere Werkzeugtasten werden geschluckt; oder eigene Befehle für die Editor-Werkzeuge.
+- **Handbuch:** keyboard-shortcuts.md §10 (Note).
+
+## F-2003 · UX · „Remove Key“ ohne ausgewählte Taste entfernt die erste Taste
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ShortcutEditor.cpp:181-196` (`removeSelectedKey`: Zeile −1 wird per `jlimit` zu 0) und `:166` (Button aktiv, sobald der Befehl eine Taste hat).
+- **Beobachtung:** Bei Befehlen mit zwei Tasten (z. B. Redo) entfernt **Remove Key** ohne Auswahl stumm die erste Taste.
+- **Erwartung:** Button erst aktiv, wenn eine Taste ausgewählt ist (bei genau einer Taste diese automatisch auswählen).
+- **Handbuch:** keyboard-shortcuts.md §7 (Caution).
+
+## F-2004 · UX · Tastenbelegung ohne Presets, Export, Import und Druckliste
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/ShortcutService.*` (nur Abweichungen als JSON in `Settings.xml`, Eintrag `…_fkShortcuts`); `src/ui/fk/ui/ShortcutEditor.cpp` (nur „Default“ und „All to Cubase Defaults“).
+- **Beobachtung:** Eigene Belegungen lassen sich nicht unter einem Namen speichern, wechseln, mitnehmen oder als Liste ausgeben. Cubase hat Presets und Import/Export.
+- **Erwartung:** Presets, Export/Import als Datei, Ausgabe der Liste.
+- **Handbuch:** keyboard-shortcuts.md §8 (Absatz „Presets“).
+
+## F-2005 · Unstimmigkeit · Menü „Export“ zeigt die Taste von „Export Project“ nicht
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ProjectComponent.cpp:1860` (`menu.addItem (itemExport, TRANS ("Export (mixdown, stems, MIDI)..."), …)` ohne `keyBindings.menuText`) gegen den Tooltip des Export-Buttons (`updateShortcutTooltips`, `:1000ff`).
+- **Beobachtung:** Wer **Export Project** eine Taste gibt, sieht sie im Tooltip, aber nicht im Menü **File**.
+- **Erwartung:** `keyBindings.menuText (TRANS ("Export (mixdown, stems, MIDI)..."), Command::exportProject)`.
+- **Handbuch:** keyboard-shortcuts.md §4 (Note).
+
+## F-1901 · UX · MIDI-Ausgänge lassen sich nirgends ein- oder ausschalten
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/AudioSettingsComponent.cpp:17-19` (JUCE-Auswahl mit `showMidiOutputSelector = false`, eigene Liste nur für Eingänge); `src/services/fk/services/MidiService.h` kennt keine Ausgänge. Tracktion schaltet neue MIDI-Ausgänge selbst ein (`tracktion_MidiOutputDevice.cpp:267`) und schaltet einen Ausgang ab, der sich nicht öffnen lässt (`tracktion_DeviceManager.cpp:458-469`).
+- **Beobachtung:** Die Audio-Einstellungen zeigen keine MIDI-Ausgänge. Ein abgeschalteter Ausgang lässt sich in der Oberfläche nicht wieder einschalten.
+- **Erwartung:** Liste **MIDI outputs** mit Schaltern unter den MIDI-Eingängen.
+- **Handbuch:** studio-and-settings.md §3.11; tracks.md §5.3.
+
+## F-1902 · UX · Studio-Verbindungen: MIDI-Ein- und Ausgänge nicht benennbar
+
+- **Status:** offen
+- **Code:** `src/services/fk/services/TrackService.cpp:256-281` (`getStudioPorts` nur Wave-Geräte), `:283-307` (`setPortAlias` ebenso); die Auswahllisten nutzen für MIDI schon `getAliasOrName()` (`:174`, `:854`).
+- **Beobachtung:** Audio-Anschlüsse bekommen eigene Namen, MIDI-Geräte nicht, obwohl gerade kryptische Treibernamen („Midi Through Port-0“) davon profitieren würden.
+- **Erwartung:** Abschnitte **MIDI inputs**/**MIDI outputs** im Dialog, Alias über `setAlias`.
+- **Handbuch:** studio-and-settings.md §4.2; Szene `StudioAndSettingsScenes.cpp` (Bild `studio-and-settings/studio-connections`).
+
+## F-1903 · Text · Studio-Verbindungen: „name from the driver“ ist „Input 3“
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/StudioConnectionsDialog.cpp:37` (Tooltip „Leave empty for the name from the driver“); angezeigt wird ohne eigenen Namen `channelName` aus `src/services/fk/services/TrackService.cpp:29-38` („Input 3“, „Output 3+4“), nicht der Treibername.
+- **Erwartung:** z. B. „Leave empty for the standard name (Input 3)“.
+- **Handbuch:** studio-and-settings.md §4.2; getting-started.md §5.8.
+
+## F-1904 · Unstimmigkeit · MIDI-Learn-Button ohne Projekt aktiv, Menüeintrag grau
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ProjectComponent.cpp:2121` (`itemMidiLearn` nur mit `hasProject`), `updateToolbar` (`:2762`) setzt `midiLearnButton` nie auf `setEnabled`; `MidiLearnService::projectChanged` schaltet den Lernmodus beim Öffnen eines Projekts wieder ab.
+- **Beobachtung:** Ohne Projekt lässt sich der Button einschalten (rot, „Touch a control…“), es gibt aber nichts zu verknüpfen; beim Anlegen eines Projekts geht er still aus.
+- **Erwartung:** Button wie der Menüeintrag nur mit Projekt aktiv.
+- **Handbuch:** studio-and-settings.md §2 (Note).
+
+## F-1905 · Text · Testton-Frequenz mit sieben Nachkommastellen
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/AudioSettingsComponent.cpp:45-48` (`frequencySlider` ohne `setNumDecimalPlacesToDisplay`).
+- **Beobachtung:** Neben dem Regler steht „440.0000000 Hz“.
+- **Erwartung:** `frequencySlider.setNumDecimalPlacesToDisplay (0)` → „440 Hz“.
+- **Handbuch:** studio-and-settings.md §3.9 (Note); Szene `GettingStartedScenes.cpp` (Bild `getting-started/audio-settings`, Zeile 10).
+
+## F-1906 · UX · Fenster „MIDI mappings“ rollt nicht und ist nicht vergrößerbar
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ProjectComponent.cpp` `showMidiMappings` (ab `:2656`): feste Größe 460 × 320 (`:2673`, `options.resizable = false` `:2747`), Zeilen ohne Viewport.
+- **Beobachtung:** Es passen neun Zuordnungen hinein; weitere sind unsichtbar und lassen sich nicht einzeln entfernen (nur **Remove all**). Lange Parameternamen werden abgeschnitten.
+- **Erwartung:** Liste in einem Viewport, Fenster vergrößerbar.
+- **Handbuch:** studio-and-settings.md §5.3 (Note).
+
+## F-1907 · Text · Deutsche Texte im Diagnosebericht und in Updates.txt
+
+- **Status:** offen
+- **Code:** `src/ui/fk/ui/ProjectComponent.cpp:1195` (Dateiname „FK-Diagnose …“), `src/services/fk/services/DiagnosticsService.cpp:41-87` (System.txt: „Erstellt“, „Betriebssystem“, „Kerne“, „Audiogerät“ …), `:102-104` (ZIP-Ordner „Haenger“, „Absturz“), `src/services/fk/services/UpdateService.cpp:35` („an“/„aus“).
+- **Beobachtung:** In der englischen Oberfläche entsteht eine „FK-Diagnose“-Datei mit deutschem Inhalt.
+- **Erwartung:** englische, neutrale Namen und Texte („FK-Diagnostics“, „Hangs“, „Crashes“, Updates.txt „on“/„off“ mit Lesen der alten Werte). Zusammen mit F-102/F-306 beheben.
+- **Handbuch:** studio-and-settings.md §8.2; getting-started.md §8.
+
+## F-1908 · UX · `--scan-plugins`: deutsche Ausgabe, nur Effekte, unter Windows unsichtbar
+
+- **Status:** offen (Windows-Teil ungeprüft)
+- **Code:** `src/app/Application.cpp:250-270` (`runHeadlessPluginScan`: „Plugins vorher/nachher“, „fehlgeschlagen“, Liste nur `getAvailableEffects()`); `src/app/CMakeLists.txt` (`juce_add_gui_app`, unter Windows ohne Konsole).
+- **Beobachtung:** Die Ausgabe ist deutsch, Instrumente fehlen. Unter Windows erscheint `std::cout` vermutlich nicht. Ein abstürzendes Plugin beendet den Scan.
+- **Erwartung:** englische Ausgabe, Instrumente und Effekte, unter Windows `AttachConsole` oder Ausgabe ins Log.
+- **Handbuch:** studio-and-settings.md §11.

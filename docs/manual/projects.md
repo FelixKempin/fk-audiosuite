@@ -77,7 +77,7 @@ Buttons 4–6 are greyed out while no project is open. The tooltips of buttons 4
 | **Project settings...** | **Shift+S** | [§13](#13-project-settings) |
 | **Save as template...** | — | [§9](#9-templates) |
 | **New from template** › | — | [§9](#9-templates) |
-| **Export (mixdown, stems, MIDI)...** | — | see the chapter *Exporting* |
+| **Export (mixdown, stems, MIDI)...** | — | see the chapter [Exporting](exporting.md) |
 | **Import audio or MIDI file...** | — | [§15](#15-importing-audio-and-midi-files) |
 | **Quit** | — | [§8](#8-closing-a-project-and-quitting) |
 
@@ -294,7 +294,7 @@ Rules:
 
 - A template with the same name is replaced without asking.
 - Characters that are not allowed in file names are removed from the name. An empty name gives the message *The template needs a name.*
-- Projects with baked tracks cannot be saved as a template: *Track "…" is baked. Unbake it first, then save as a template.* (Baking: see the chapter *Track bake (freeze)*.)
+- Projects with baked tracks cannot be saved as a template: *Track "…" is baked. Unbake it first, then save as a template.* (Baking: see the chapter [Track bake (freeze)](track-bake.md).)
 - Sampler tracks in a template still load their sample map from the original project's **Sampler/** folder.
 
 Templates are stored in your user settings folder, one file per template (`<name>.tracktionedit`):
@@ -437,9 +437,9 @@ Changes to fields 1 and 3–8 are undo steps named **Project settings** and coun
 <!-- FIX F-310: undoing a settings change may also update the recording inputs -->
 > **Note:** Undoing a **Project settings** step restores the stored values, but recording format, bit depth and recording modes take effect on the inputs only the next time you change a field or open the project.
 
-Recording format, bit depth and the two recording modes apply to all audio and MIDI inputs while the project is open; FK Audio Suite applies them again whenever the project is opened. Recording in depth: see the chapter *Recording audio and MIDI*.
+Recording format, bit depth and the two recording modes apply to all audio and MIDI inputs while the project is open; FK Audio Suite applies them again whenever the project is opened. Recording in depth: see the chapter [Recording audio and MIDI](recording.md).
 
-The transport bar's second time display (seconds, timecode or samples) is also stored with the project; you change it in the transport bar, not here. See the chapter *Transport*.
+The transport bar's second time display (seconds, timecode or samples) is also stored with the project; you change it in the transport bar, not here. See the chapter [Transport](transport.md).
 
 ---
 
@@ -473,7 +473,7 @@ When you open or create a project whose sample rate differs from the audio devic
 
 You can also compare and switch later in the project settings (field 2, **Switch device**). If the device does not support the rate, a window **Sample rate** says *The audio device "…" does not support … Hz.* Under JACK, the message adds how to set the server's rate, for example with `pw-metadata -n settings 0 clock.force-rate 48000`. Without an active device the message is *No audio device is active (Studio > Audio settings).*
 
-Audio device settings: see the chapter *Studio connections and settings*.
+Audio device settings: see the chapter [Studio connections and settings](studio-and-settings.md).
 
 ---
 
@@ -488,9 +488,9 @@ Audio device settings: see the chapter *Studio connections and settings*.
 
 Audio files from outside the project folder are copied into **Audio/** first ([§2](#2-the-project-folder)); if a file with that name exists there, the copy gets a new name. A MIDI file with several tracks gives one part per track. If a MIDI file contains its own tempo, you are asked how to handle it.
 
-You can also drag files from your file manager or from the media browser into the arrangement. Importing, placing and the MIDI tempo question in depth: see the chapter *Arranging*. Media browser: see the chapter *Media browser and content*.
+You can also drag files from your file manager or from the media browser into the arrangement. Importing, placing and the MIDI tempo question in depth: see the chapter [Arranging](arranging.md). Media browser: see the chapter [Media browser and content](media-browser.md).
 
-Exporting a mixdown, stems or a MIDI file: see the chapter *Exporting*.
+Exporting a mixdown, stems or a MIDI file: see the chapter [Exporting](exporting.md).
 
 ---
 

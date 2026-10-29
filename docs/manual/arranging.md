@@ -82,7 +82,7 @@ In the picture, the demo project shows these kinds of clips:
   - **Tempo** *n* **BPM** when the clip follows the project tempo, otherwise *n* **% length** when the clip is stretched ([§15](#15-tempo-and-pitch-time-stretch)),
   - *n* **st** when the pitch is changed, for example **+2.0 st**.
 - Audio clips always have two small light squares at the top edge: the **fade handles** ([§12](#12-fades-and-crossfades)). The clip gain appears at the right of the title bar as soon as it is not 0 dB ([§13](#13-clip-gain-and-normalizing)).
-- While a track records, a red block labelled **Recording...** grows from the record start to the playhead; the clip itself appears when recording stops (see the chapter *Recording audio and MIDI*).
+- While a track records, a red block labelled **Recording...** grows from the record start to the playhead; the clip itself appears when recording stops (see the chapter [Recording audio and MIDI](recording.md)).
 - On a baked track, all clips are dimmed and a hint is shown ([§21](#21-baked-tracks)).
 
 Behind the clips, every track draws vertical grid lines: bars stronger, beats and grid steps fainter ([§3](#3-grid-and-snap)). The playhead runs as a vertical line across all tracks.
@@ -452,7 +452,7 @@ A muted clip stays in place but does not play. It is drawn grey and its name sta
 
 The context menu entry reads **Mute** or **Unmute** depending on the clip you right-clicked.
 
-To mute a whole track instead, use the **M** button in its track header (see the chapter *Tracks*).
+To mute a whole track instead, use the **M** button in its track header (see the chapter [Tracks](tracks.md)).
 
 ---
 
@@ -541,7 +541,7 @@ The context menu entry reads **Undo reverse** when the clip you right-clicked pl
 
 > **Note:** After **Invert phase**, the new file contains only the part that was audible. The left edge can no longer be dragged out to reveal material that was hidden before.
 
-Further processing of audio material (silence, gain, fades and more on a section of a clip) is done in the Sample Editor: see the chapter *Sample Editor*.
+Further processing of audio material (silence, gain, fades and more on a section of a clip) is done in the Sample Editor: see the chapter [Sample Editor](sample-editor.md).
 
 ---
 
@@ -582,7 +582,7 @@ Every change takes effect immediately and is its own undo step (*Follow project 
 1. Right-click the clip, choose **Tempo and Pitch...**.
 2. Type the tempo of the loop into **Tempo of the material**, or click **Detect**.
 3. Tick **Follow tempo**. The clip length changes so that the material fits the project tempo at this position; the title bar shows **Tempo** *n* **BPM**.
-4. Change the project tempo (see the chapter *Signature track*): the clip stretches along.
+4. Change the project tempo (see the chapter [Signature track](signature-track.md)): the clip stretches along.
 
 - If you tick **Follow tempo** with an empty tempo field, the tempo is detected automatically.
 - Detection accepts tempos from 29 to 200 BPM. If none is found: *No tempo detected (too short or no clear rhythm). Please enter the tempo.* Enter the tempo by hand then.
@@ -597,7 +597,7 @@ Every change takes effect immediately and is its own undo step (*Follow project 
 
 ## 16. Takes
 
-When you record in a loop, each pass becomes a **take** of the same clip (see the chapter *Recording audio and MIDI*). A clip with several takes shows *name* **· Take** *n*/*m* in its title bar.
+When you record in a loop, each pass becomes a **take** of the same clip (see the chapter [Recording audio and MIDI](recording.md)). A clip with several takes shows *name* **· Take** *n*/*m* in its title bar.
 
 Right-click the clip and open **Takes** ›:
 
@@ -668,7 +668,7 @@ You can bring **audio files** (WAV, AIFF, FLAC, OGG, MP3) and **MIDI files** (`.
 
 ### 19.1 Drag and drop
 
-Drag one or more files from your file manager, or from the **Media** tab of the lower zone (see the chapter *Media browser and content*), onto the event display.
+Drag one or more files from your file manager, or from the **Media** tab of the lower zone (see the chapter [Media browser and content](media-browser.md)), onto the event display.
 
 ![Drop preview: a file is dragged onto the Bass track at bar 3](images/arranging/drop.png)
 
@@ -698,7 +698,7 @@ The files are placed **at the playhead** (with Snap on, at the grid line nearest
 
 ### 19.3 From the media browser
 
-In the **Media** tab, the import function of the browser places files at the playhead on the selected track, the same as **File › Import** (see the chapter *Media browser and content*).
+In the **Media** tab, the import function of the browser places files at the playhead on the selected track, the same as **File › Import** (see the chapter [Media browser and content](media-browser.md)).
 
 ### 19.4 Where the files land
 
@@ -729,8 +729,8 @@ Double-click a clip (with any tool):
 
 | Clip | Opens |
 |---|---|
-| MIDI clip | The [Key Editor](key-editor.md) in the lower zone. If the track uses a drum map, the Drum Editor instead (see the chapter *Drum Editor*). The List Editor always shows the same clip as well (see the chapter *List Editor*). |
-| Audio clip | The Sample Editor in the lower zone (see the chapter *Sample Editor*). |
+| MIDI clip | The [Key Editor](key-editor.md) in the lower zone. If the track uses a drum map, the Drum Editor instead (see the chapter [Drum Editor](drum-editor.md)). The List Editor always shows the same clip as well (see the chapter [List Editor](list-editor.md)). |
+| Audio clip | The Sample Editor in the lower zone (see the chapter [Sample Editor](sample-editor.md)). |
 
 If the lower zone is hidden, it opens. See also [The project window §8](project-window.md#8-lower-zone).
 
@@ -738,7 +738,7 @@ If the lower zone is hidden, it opens. See also [The project window §8](project
 
 ## 21. Baked tracks
 
-A **baked** track (see the chapter *Track bake (freeze)*) locks its clips. Its clips are dimmed, and the lane shows **Baked: unbake to edit**, or **Baked into group "*name*"** when the track feeds a baked group.
+A **baked** track (see the chapter [Track bake (freeze)](track-bake.md)) locks its clips. Its clips are dimmed, and the lane shows **Baked: unbake to edit**, or **Baked into group "*name*"** when the track feeds a baked group.
 
 No clip on such a track can be moved, trimmed, split, glued, deleted, muted, faded or processed, and nothing can be pasted, imported or drawn onto it. Functions from the toolbar, the **Edit** menu, the keys and the context menu show a message instead:
 

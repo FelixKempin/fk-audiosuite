@@ -13,7 +13,7 @@ Maintainers: see [MAINTAINING.md](MAINTAINING.md).
 
 ## Contents
 
-Chapters are listed in the order a new user needs them. Chapters without a link are planned and not yet written.
+Chapters are listed in the order a new user needs them. New chapters are added here when new areas of the application appear.
 
 | # | Chapter | Status |
 |---|---|---|
@@ -31,9 +31,9 @@ Chapters are listed in the order a new user needs them. Chapters without a link 
 | 12 | [Signature track](signature-track.md): tempo, time signature, key | written |
 | 13 | [Automation](automation.md) | written |
 | 14 | [MixConsole](mixconsole.md): channels, inserts, sends, routing | written |
-| 15 | Instruments and effects: plugins, plugin manager, instrument browser | planned |
-| 16 | Media browser and content | planned |
-| 17 | Track bake (freeze) | planned |
-| 18 | Exporting | planned |
-| 19 | Studio connections and settings | planned |
-| 20 | Keyboard shortcuts | planned |
+| 15 | [Instruments and effects](instruments-and-effects.md): plugins, plugin manager, instrument browser | written |
+| 16 | [Media browser and content](media-browser.md) | written |
+| 17 | [Track bake (freeze)](track-bake.md) | written |
+| 18 | [Exporting](exporting.md) | written |
+| 19 | [Studio connections and settings](studio-and-settings.md) | written |
+| 20 | [Keyboard shortcuts](keyboard-shortcuts.md) | written |

@@ -131,7 +131,7 @@ The menu bar holds every function of the project window, including those that al
 | **Import audio or MIDI file...** | — | Imports one or more WAV, AIFF, FLAC, OGG, MP3 or MIDI files at the playhead on the selected track (otherwise onto a new track). |
 | **Quit** | — | Quits FK Audio Suite (with the unsaved-changes question, see [§1](#1-opening-and-closing-the-window)). |
 
-Projects, templates, auto-save and backups: see the chapter *Projects*. Exporting: see the chapter *Exporting*.
+Projects, templates, auto-save and backups: see the chapter [Projects](projects.md). Exporting: see the chapter [Exporting](exporting.md).
 
 ### 3.2 Edit
 
@@ -170,7 +170,7 @@ The clip entries are greyed out when they cannot be used, for example **Paste at
 
 > **Note:** **Del** works on the range when there is one, and on the selected clips otherwise.
 
-Editing clips and ranges in depth: see the chapter *Arranging*. Undo and history: see the chapter *Projects*.
+Editing clips and ranges in depth: see the chapter [Arranging](arranging.md). Undo and history: see the chapter [Projects](projects.md).
 
 ### 3.3 Track
 
@@ -200,7 +200,7 @@ Editing clips and ranges in depth: see the chapter *Arranging*. Undo and history
 <!-- FIX F-206: numbering of new tracks may count per track type -->
 New tracks get a numbered name: **Audio** *n*, the instrument's name plus *n*, **Group** *n* and **MIDI** *n* count all tracks of the project, **FX** *n* counts only FX tracks and **Folder** *n* only folders. Rename a track by double-clicking its name.
 
-Track types in depth: see the chapter *Tracks*. Automation: see the chapter *Automation*.
+Track types in depth: see the chapter [Tracks](tracks.md). Automation: see the chapter [Automation](automation.md).
 
 ### 3.4 View
 
@@ -245,7 +245,7 @@ The tab entries are ticked when their tab is the one showing. They open the lowe
 
 If you set a locator so that the left one would be after the right one, the two are swapped.
 
-Loop (**Num /**), metronome (**C**) and retrospective record (**Shift+Num \***) have keys and buttons in the transport bar but no entry in this menu. Transport functions in depth: see the chapter *Transport*.
+Loop (**Num /**), metronome (**C**) and retrospective record (**Shift+Num \***) have keys and buttons in the transport bar but no entry in this menu. Transport functions in depth: see the chapter [Transport](transport.md).
 
 ### 3.6 Studio
 
@@ -259,7 +259,7 @@ Loop (**Num /**), metronome (**C**) and retrospective record (**Shift+Num \***) 
 | **MIDI mappings...** | Lists every learned MIDI mapping, each with a button to remove it, plus **Remove all**. Without mappings it explains how to create one. |
 | **Language** › | The user-interface language. Each language is written in its own language, so you always find your way back. The new language takes effect the next time FK Audio Suite starts; FK plugins switch the next time their window opens. |
 
-Audio settings and studio connections: see the chapter *Studio connections and settings*. Plugins and the Content Manager: see the chapter *Instruments and effects*.
+Audio settings and studio connections: see the chapter [Studio connections and settings](studio-and-settings.md). Plugins and the Content Manager: see the chapter [Instruments and effects](instruments-and-effects.md).
 
 ### 3.7 Help
 
@@ -340,7 +340,7 @@ The toolbar sits below the menu bar. Every button has an icon and a tooltip; hov
 
 Notes on the toolbar:
 
-- **Tools (22–29)** work like radio buttons: exactly one is active. **Select** is active when the window opens. The tools are described in the chapter *Arranging*.
+- **Tools (22–29)** work like radio buttons: exactly one is active. **Select** is active when the window opens. The tools are described in the chapter [Arranging](arranging.md).
 - **Clip buttons (16–21) and Nudge (30, 31)** are greyed out when they cannot be used, for example without selected clips. All project buttons except New, Open and Recent are greyed out while no project is open.
 - **Track height (36, 37):** from 56 to 160 pixels, default 72.
 - **Zoom presets (34):** **Save current zoom...** asks for a name (suggested: *Zoom n s*) and stores how many seconds are visible. A preset changes only the scale; the position stays. Presets are available in all projects.
@@ -348,13 +348,13 @@ Notes on the toolbar:
 
 **Narrow windows.** If the window is too narrow for all buttons with their labels, the labels disappear one at a time, in this order: **Folder**, **FX**, **Group**, **Instrument**, **Audio**, **Export**, **Save**, **Open**, **New**. Only when all labels are gone does the toolbar wrap into a second (or third) row. Every function stays visible as an icon with its tooltip. The project name needs at least 160 pixels; if there is less room, it moves to the next row.
 
-While **MIDI Learn** is on, a red hint appears in the toolbar before the project name and tells you what to do next. MIDI Learn: see the chapter *Studio connections and settings*.
+While **MIDI Learn** is on, a red hint appears in the toolbar before the project name and tells you what to do next. MIDI Learn: see the chapter [Studio connections and settings](studio-and-settings.md).
 
 ---
 
 ## 5. Transport bar
 
-The transport bar at the bottom of the window controls playback and recording and shows the position, locators, tempo and audio load. This section names each element; the chapter *Transport* explains them in depth.
+The transport bar at the bottom of the window controls playback and recording and shows the position, locators, tempo and audio load. This section names each element; the chapter [Transport](transport.md) explains them in depth.
 
 ![Transport bar, left part: navigation, transport and automation](images/project-window/transport-controls.png)
 
@@ -418,7 +418,7 @@ The arrangement area is where you build the song. From top to bottom:
 |---|---|---|
 | **Overview bar** (4) | The whole project in miniature: one thin row per track, clips as blocks in the track colour, and a frame for the visible section | Drag the frame to scroll, drag its edges to zoom, click beside it to jump there. Off by default; switch it on with button 35 or **View › Overview bar**. 30 pixels high. |
 | **Ruler** (5) | Bars and beats, the loop range | Click: move the playhead. Drag: set the loop range. Both snap to the grid. |
-| **Signature track** (6) | Three lanes: **Tempo**, **Time signature**, **Key** | Click on the grid to set a tempo, time signature or key; see the chapter *Signature track*. |
+| **Signature track** (6) | Three lanes: **Tempo**, **Time signature**, **Key** | Click on the grid to set a tempo, time signature or key; see the chapter [Signature track](signature-track.md). |
 | **Marker track** (7) | Named positions; **+** adds a marker at the playhead | Click a marker to jump there, drag it to move it, double-click to rename it, double-click on empty space to add one, right-click for loop, rename and delete. |
 | **Track list** (8) | One header per track: name, buttons, input; folders with their tracks indented | Click to select a track, drag to reorder, right-click for colour, duplicate, hide and delete. |
 | **Event display** (9) | The clips of each track along the timeline, and the playhead | Edit clips with the tools from the toolbar ([§4](#4-toolbar)). |
@@ -451,14 +451,14 @@ The lower zone below the arrangement holds the MixConsole, the on-screen keyboar
 <!-- FIX F-202: tab names may change to match the View menu (e.g. "List Editor") -->
 | # | Tab | Key | Content | Details |
 |---|---|---|---|---|
-| 1 | **MixConsole** | **F3** | Channel strips of all tracks and the master | see the chapter *MixConsole* |
-| 2 | **Keyboard** | **F4** | On-screen keyboard to play notes with the mouse; octave buttons | see the chapter *Recording audio and MIDI* |
+| 1 | **MixConsole** | **F3** | Channel strips of all tracks and the master | see the chapter [MixConsole](mixconsole.md) |
+| 2 | **Keyboard** | **F4** | On-screen keyboard to play notes with the mouse; octave buttons | see the chapter [Recording audio and MIDI](recording.md) |
 | 3 | **Key Editor** | **F5** | Notes of a MIDI clip | [Key Editor](key-editor.md) |
-| 4 | **Media** | **F6** | File browser with audition; drag files into the arrangement | see the chapter *Media browser and content* |
-| 5 | **Sample Editor** | **F7** | Waveform of an audio clip | see the chapter *Sample Editor* |
-| 6 | **Drum Editor** | **F8** | MIDI clips of tracks with a drum map | see the chapter *Drum Editor* |
+| 4 | **Media** | **F6** | File browser with audition; drag files into the arrangement | see the chapter [Media browser and content](media-browser.md) |
+| 5 | **Sample Editor** | **F7** | Waveform of an audio clip | see the chapter [Sample Editor](sample-editor.md) |
+| 6 | **Drum Editor** | **F8** | MIDI clips of tracks with a drum map | see the chapter [Drum Editor](drum-editor.md) |
 | 7 | **List** | **F9** | The List Editor: the notes of a MIDI clip as a table <!-- FIX F-1005: may also show controllers and other events --> | [List Editor](list-editor.md) |
-| 8 | **Instruments** | **F10** | Instrument browser: instruments, libraries and presets; double-click makes a new track | see the chapter *Instruments and effects* |
+| 8 | **Instruments** | **F10** | Instrument browser: instruments, libraries and presets; double-click makes a new track | see the chapter [Instruments and effects](instruments-and-effects.md) |
 | 9 | Zone splitter | — | Drag to resize the lower zone, double-click for the default height | [§9](#9-showing-hiding-and-resizing-zones) |
 
 **Ways to switch tabs:**
@@ -530,7 +530,7 @@ Every key in this chapter is a default. Change keys in **Edit › Keyboard short
 <!-- FIX F-209: New, Open, Quit, Import and Lower zone may get commands -->
 **New project**, **Open project**, **Quit**, **Import** and **Lower zone** have no command and cannot get a key. **Export Project**, **History**, **Overview Bar On/Off** and **Keyboard Commands** are commands without a default key; you can assign one.
 
-The complete list of commands: see the chapter *Keyboard shortcuts*.
+The complete list of commands: see the chapter [Keyboard shortcuts](keyboard-shortcuts.md).
 
 ---
 

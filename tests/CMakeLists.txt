@@ -91,7 +91,13 @@ if(FK_BUILD_APP)
     manual/SampleEditorScenes.cpp
     manual/SignatureTrackScenes.cpp
     manual/AutomationScenes.cpp
-    manual/MixConsoleScenes.cpp)
+    manual/MixConsoleScenes.cpp
+    manual/InstrumentsAndEffectsScenes.cpp
+    manual/MediaBrowserScenes.cpp
+    manual/TrackBakeScenes.cpp
+    manual/ExportingScenes.cpp
+    manual/StudioAndSettingsScenes.cpp
+    manual/KeyboardShortcutsScenes.cpp)
   list(APPEND FK_TEST_LIBS fk::services fk::engine fk::ui)
 endif()
 

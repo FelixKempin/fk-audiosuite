@@ -59,7 +59,7 @@ A recording needs four things:
 | What | Where | Details |
 |---|---|---|
 | A working audio device, and for MIDI a switched-on MIDI input | **Studio › Audio and MIDI settings...** | [Getting started §5](getting-started.md#5-audio-and-midi-setup) |
-| A track of the right kind | Toolbar or **Track** menu | Audio track (mono or stereo) for audio; instrument track or MIDI track for MIDI. See the chapter *Tracks*. |
+| A track of the right kind | Toolbar or **Track** menu | Audio track (mono or stereo) for audio; instrument track or MIDI track for MIDI. See the chapter [Tracks](tracks.md). |
 | An input on that track | Inspector, field **Input** | [§2](#2-choosing-a-tracks-input) |
 | The track armed for recording | **R** in the track header or the Inspector | [§3](#3-arming-tracks) |
 
@@ -93,7 +93,7 @@ Audio tracks list the input channels of your audio device that are ticked under 
 | **Audio track mono** | Single channels | **Input 1**, **Input 2**, **Input 3** |
 | **Audio track stereo** | Pairs of neighbouring channels: 1+2, 3+4, ... | **Input 1+2**, **Input 3+4** |
 
-Whether a track is mono or stereo is decided when you create it (**Audio track mono** or **Audio track stereo**, see the chapter *Tracks*) and cannot be changed later. A mono track never shows stereo pairs, and the other way round. A stereo pair is only formed from two neighbouring active channels.
+Whether a track is mono or stereo is decided when you create it (**Audio track mono** or **Audio track stereo**, see the chapter [Tracks](tracks.md)) and cannot be changed later. A mono track never shows stereo pairs, and the other way round. A stereo pair is only formed from two neighbouring active channels.
 
 If you gave a channel your own name in **Studio › Studio connections...**, that name appears instead, for example *Guitar DI* ([Getting started §5.8](getting-started.md#58-naming-inputs-and-outputs)).
 
@@ -281,7 +281,7 @@ Undoing a recording removes the clip but **not** the audio file ([§15](#15-undo
 
 **To record audio:**
 
-1. Create an audio track: mono for one microphone or a mono instrument, stereo for a stereo source (see the chapter *Tracks*).
+1. Create an audio track: mono for one microphone or a mono instrument, stereo for a stereo source (see the chapter [Tracks](tracks.md)).
 2. Choose the **Input** in the Inspector, for example **Input 1** ([§2.1](#21-audio-inputs-audio-tracks)).
 3. Arm the track with **R** ([§3](#3-arming-tracks)). You now hear the input through the track.
 4. Play or sing a few bars and set the level at your interface ([§4](#4-hearing-your-input-and-watching-levels)).
@@ -293,7 +293,7 @@ Undoing a recording removes the clip but **not** the audio file ([§15](#15-undo
 
 What happens to clips already on the track depends on **Audio recording** in the project settings ([§6](#6-recording-settings)):
 
-- **Keep takes** (default): the new clip lies on top of the old ones. The old clips stay as they are. If you no longer need them, delete them or mute them (see the chapter *Arranging*).
+- **Keep takes** (default): the new clip lies on top of the old ones. The old clips stay as they are. If you no longer need them, delete them or mute them (see the chapter [Arranging](arranging.md)).
 - **Replace**: the old clips are cut out of the recorded range. Parts of them outside the range remain.
 
 > **Tip:** To record again over the same place while keeping every attempt as a take, use loop recording ([§11](#11-loop-recording-and-takes)).
@@ -304,7 +304,7 @@ What happens to clips already on the track depends on **Audio recording** in the
 
 **To record MIDI:**
 
-1. Use an instrument track (it plays an instrument) or a MIDI track (it plays an external device); see the chapter *Tracks*.
+1. Use an instrument track (it plays an instrument) or a MIDI track (it plays an external device); see the chapter [Tracks](tracks.md).
 2. Check the **Input** in the Inspector: **All MIDI inputs**, your keyboard or the on-screen keyboard ([§2.2](#22-midi-inputs-instrument-and-midi-tracks)). You hear the instrument as soon as you play.
 3. Arm the track with **R**.
 4. Press **Num \*** or click **Record**, play, and press **Space** to stop.
@@ -412,7 +412,7 @@ All in the **Takes** submenu of the clip's right-click menu:
 - **Audio:** take 1 goes to the next track below, take 2 to the track below that, and so on. These are whatever tracks follow, whatever their kind. Where no further track exists, a new audio track is created.
 - **MIDI:** every take is placed as a new clip named **Take #1**, **Take #2**, ... on the **same** track as the original clip, on top of it.
 
-Takes of tracks that are baked cannot be changed; unbake the track first (see the chapter *Track bake*).
+Takes of tracks that are baked cannot be changed; unbake the track first (see the chapter [Track bake](track-bake.md)).
 
 <!-- FIX F-701: errors of take functions may be shown in the project window -->
 > **Note:** If a take function cannot be carried out (for example on a baked track), nothing happens and no message is shown.

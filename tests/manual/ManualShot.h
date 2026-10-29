@@ -7,6 +7,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <optional>
 #include <vector>
@@ -106,7 +107,7 @@ inline void saveShot (juce::Component& component,
     for (auto& callout : callouts)
         callout.target = callout.target.getIntersection (shotArea).translated (-shotArea.getX(), -shotArea.getY());
 
-    constexpr int badge = 18;
+    constexpr float badge = 18.0f;
     constexpr int strip = 28; // Rand über dem Bild für Markierungen der Werkzeugleiste
 
     const bool needsStrip = std::ranges::any_of (callouts, [] (const Callout& callout)
@@ -114,7 +115,30 @@ inline void saveShot (juce::Component& component,
     const int top = needsStrip ? strip : 0;
     const auto snapshot = component.createComponentSnapshot (shotArea);
 
-    juce::Image image (juce::Image::ARGB, snapshot.getWidth(), snapshot.getHeight() + top, true);
+    // Lage der Nummer: über dem Bild (Leisten), rechts neben kleinen Zielen (Listen, Buttons; verdeckt
+    // keine Beschriftung) oder innen oben rechts in Flächen (links stehen meist Beschriftungen).
+    const auto circleFor = [top] (const Callout& callout)
+    {
+        const auto target = callout.target.translated (0, top);
+
+        if (callout.placement == Callout::Placement::above)
+            return juce::Rectangle<float> (static_cast<float> (target.getCentreX()) - badge / 2.0f, 4.0f, badge, badge);
+
+        const bool small = target.getHeight() < 40 || target.getWidth() < 80;
+        const auto x = small ? static_cast<float> (target.getRight()) + 4.0f : static_cast<float> (target.getRight()) - badge - 4.0f;
+        const auto y = small ? static_cast<float> (target.getCentreY()) - badge / 2.0f : static_cast<float> (target.getY()) + 4.0f;
+        return juce::Rectangle<float> (x, y, badge, badge);
+    };
+
+    // Ragt eine Nummer rechts heraus, wird das Bild um einen Rand verbreitert statt sie abzuschneiden.
+    float rightmost = 0.0f;
+
+    for (const auto& callout : callouts)
+        rightmost = std::max (rightmost, circleFor (callout).getRight());
+
+    const int width = std::max (snapshot.getWidth(), static_cast<int> (std::ceil (rightmost)) + 4);
+
+    juce::Image image (juce::Image::ARGB, width, snapshot.getHeight() + top, true);
     juce::Graphics g (image);
     g.fillAll (ui::theme::backgroundBase);
     g.drawImageAt (snapshot, 0, top);
@@ -122,31 +146,14 @@ inline void saveShot (juce::Component& component,
     for (const auto& callout : callouts)
     {
         const auto target = callout.target.translated (0, top);
-        juce::Rectangle<float> circle;
+        const auto circle = circleFor (callout);
+        g.setColour (ui::theme::solo);
 
         if (callout.placement == Callout::Placement::above)
-        {
-            const auto centreX = static_cast<float> (target.getCentreX());
-            circle = { centreX - badge / 2.0f, 4.0f, badge, badge };
-            g.setColour (ui::theme::solo);
-            g.drawLine (centreX, circle.getBottom(), centreX, static_cast<float> (target.getY()) + 2.0f, 1.5f);
-        }
+            g.drawLine (circle.getCentreX(), circle.getBottom(), circle.getCentreX(), static_cast<float> (target.getY()) + 2.0f, 1.5f);
         else
-        {
-            g.setColour (ui::theme::solo);
             g.drawRect (target, 2);
 
-            // Kleine Ziele (Listen, Buttons): Nummer rechts daneben, damit sie die Beschriftung nicht
-            // verdeckt; Flächen: Nummer innen oben rechts, links stehen meist Beschriftungen.
-            const bool small = target.getHeight() < 40 || target.getWidth() < 80;
-            const auto x = small ? static_cast<float> (target.getRight()) + 4.0f
-                                 : static_cast<float> (target.getRight()) - badge - 4.0f;
-            const auto y = small ? static_cast<float> (target.getCentreY()) - badge / 2.0f
-                                 : static_cast<float> (target.getY()) + 4.0f;
-            circle = { x, y, badge, badge };
-        }
-
-        g.setColour (ui::theme::solo);
         g.fillEllipse (circle);
         g.setColour (juce::Colours::black);
         g.setFont (juce::FontOptions (12.0f, juce::Font::bold));

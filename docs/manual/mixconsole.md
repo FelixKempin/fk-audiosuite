@@ -161,7 +161,7 @@ The menu lists the effects that FK Audio Suite knows; instruments are not listed
 | Category submenus | **MIDI effects**, **Dynamics**, **EQ**, **Filter**, **Reverb and delay**, **Modulation**, **Distortion**, **Tools**, **Other**; empty categories are left out |
 | **By vendor** | All effects, one submenu per manufacturer; plugins without a manufacturer under **No vendor** |
 
-FK effects appear with their name only (**FK Compressor**); other plugins show their format after the name, for example *Name  (VST3)*. Plugins you hid in the Plugin Manager do not appear. If no effect is known at all, the menu only shows the greyed-out entry **No plugins found (Plugin Manager: Search and Scan)**. Favourites, categories, hiding and scanning: see the chapter *Instruments and effects*.
+FK effects appear with their name only (**FK Compressor**); other plugins show their format after the name, for example *Name  (VST3)*. Plugins you hid in the Plugin Manager do not appear. If no effect is known at all, the menu only shows the greyed-out entry **No plugins found (Plugin Manager: Search and Scan)**. Favourites, categories, hiding and scanning: see the chapter [Instruments and effects](instruments-and-effects.md).
 
 **Where the new effect goes.** A new effect always goes **behind the last insert** of the track, no matter which empty slot you click. The slots fill from the top without gaps. Special cases:
 
@@ -192,7 +192,7 @@ Right-click a used slot:
 | **Delete preset** › *name* | Deletes one of your presets at once, without asking. |
 | **Factory presets of the plugin** › … | Programs the plugin brings itself (many VST3 plugins). Programs without a name are listed as **Program** *n*. |
 
-Loading a preset (*Load preset*) or a program (*Load program*) is an editing step. Saving and deleting presets change files only and cannot be undone. Presets in depth: see the chapter *Instruments and effects*.
+Loading a preset (*Load preset*) or a program (*Load program*) is an editing step. Saving and deleting presets change files only and cannot be undone. Presets in depth: see the chapter [Instruments and effects](instruments-and-effects.md).
 
 ### 4.3 Changing the order or replacing an effect
 
@@ -298,7 +298,7 @@ The round knob below trim and phase places the track between left and right.
 - During playback with automation, the knob follows the automation as long as you do not hold it.
 
 <!-- FIX F-1403: the pan knob may show its value -->
-Pan changes are undoable; see [§17](#17-undo-and-messages). Automation of pan: see the chapter *Automation*.
+Pan changes are undoable; see [§17](#17-undo-and-messages). Automation of pan: see the chapter [Automation](automation.md).
 
 ---
 
@@ -324,7 +324,7 @@ The vertical fader sets the volume of the track.
 | Mouse wheel over the fader | Moves it in small steps. |
 | Click the value below the fader | Type a value in dB and press **Enter**. |
 
-During playback with automation, the fader follows the automation as long as you do not hold it. Automation of the volume: see the chapter *Automation*.
+During playback with automation, the fader follows the automation as long as you do not hold it. Automation of the volume: see the chapter [Automation](automation.md).
 
 Volume changes are undoable; see [§17](#17-undo-and-messages).
 

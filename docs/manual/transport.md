@@ -229,11 +229,11 @@ While loop is on, playback runs to the right locator and then continues at the l
 
 ## 7. Recording from the transport
 
-This section covers only the transport side of recording: how to start and stop it and how loop, punch and count-in affect it. Inputs, arming tracks, takes and recording modes: see the chapter *Recording*.
+This section covers only the transport side of recording: how to start and stop it and how loop, punch and count-in affect it. Inputs, arming tracks, takes and recording modes: see the chapter [Recording](recording.md).
 
 **To record:**
 
-1. Arm at least one track for recording (see the chapter *Recording*).
+1. Arm at least one track for recording (see the chapter [Recording](recording.md)).
 2. Click **Record** (9), press **Num \*** (on keyboards without a number pad, **\*** works as well), or choose **Transport › Record**.
 3. Recording starts. The **Record** button turns red and the **Play** button green. On every armed track a red block labelled **Recording...** grows from the start point to the playhead. The clip itself appears when you stop.
 4. Stop with **Stop** (8) or **Space**.
@@ -334,7 +334,7 @@ Retrospective record catches what you played while the transport was not recordi
 
 **To use it:**
 
-1. Arm the instrument track (see the chapter *Recording*).
+1. Arm the instrument track (see the chapter [Recording](recording.md)).
 2. Play on your MIDI keyboard; the song may be stopped or playing, but not recording.
 3. Click **Retrospective record** (10) or press **Shift+Num \***.
 4. The notes from the last 30 seconds appear as new clips on the armed tracks.
@@ -393,7 +393,7 @@ Markers stay on their bar and beat when you change the tempo.
 
 ## 12. Tempo and time signature
 
-The transport bar shows the tempo (23) and the time signature (24) at the **project start**. You can change them here quickly; tempo and time signature changes later in the song are made in the signature track (see the chapter *Signature track*).
+The transport bar shows the tempo (23) and the time signature (24) at the **project start**. You can change them here quickly; tempo and time signature changes later in the song are made in the signature track (see the chapter [Signature track](signature-track.md)).
 
 **To change the tempo:**
 
@@ -418,7 +418,7 @@ Allowed are 1 to 32 beats and the note values 2, 4, 8 and 16. Anything else is i
 
 ## 13. Automation read and write
 
-The two automation buttons switch automation on and off for the whole project. How each track handles automation is set per track (see the chapter *Automation*).
+The two automation buttons switch automation on and off for the whole project. How each track handles automation is set per track (see the chapter [Automation](automation.md)).
 
 | # | Button | When on (lit) | When off |
 |---|---|---|---|
@@ -447,7 +447,7 @@ At the right end of the transport bar, **DSP** *n* **%** shows how much of the a
 <!-- FIX F-402: the overload hint may appear only when the engine actually mutes -->
 The tooltip says: *Audio load: share of the time the audio callback computes. From 98 % the engine mutes so nothing hangs. Remedies: bake tracks, a larger buffer in the audio settings, a release build instead of a debug build.* The sound is muted only from 98 %; between 90 % and 98 % the display already shows the overload hint.
 
-> **Tip:** If the display is often orange or red, bake tracks you are not editing (see the chapter *Track bake*) or choose a larger buffer in **Studio › Audio and MIDI settings...**.
+> **Tip:** If the display is often orange or red, bake tracks you are not editing (see the chapter [Track bake](track-bake.md)) or choose a larger buffer in **Studio › Audio and MIDI settings...**.
 
 ---
 

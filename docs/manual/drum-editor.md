@@ -51,7 +51,7 @@ A track uses a drum map automatically if its instrument is a drum instrument (se
 
 **Track › Insert empty MIDI clip at playhead** also opens the new clip in the Drum Editor when the track uses a drum map.
 
-The List Editor always shows the same clip as well (see the chapter *List Editor*). The Key Editor keeps the clip it showed before.
+The List Editor always shows the same clip as well (see the chapter [List Editor](list-editor.md)). The Key Editor keeps the clip it showed before.
 
 **To show the Drum Editor without opening a clip,** use any of these:
 
@@ -282,7 +282,7 @@ The editor does not show the number while you drag; the size of the diamond is t
 
 > **Example:** A hit with velocity 100: drag 20 pixels up for 120, drag 60 pixels down for 40.
 
-To set exact values, use the List Editor (**F9**), which shows the same clip (see the chapter *List Editor*).
+To set exact values, use the List Editor (**F9**), which shows the same clip (see the chapter [List Editor](list-editor.md)).
 
 ---
 
@@ -352,7 +352,7 @@ With FK Sampler you can build a drum kit from your own samples, directly in the 
 
 1. Choose **Track › Sampler track (empty drum kit)**. A track named **Drum kit** with FK Sampler and the **GM drum kit** map appears ([Tracks §3.2](tracks.md#32-instrument-tracks)).
 2. Create a MIDI clip on it, for example with **Track › Insert empty MIDI clip at playhead**, or by double-clicking an empty place in the track ([Arranging §18](arranging.md#18-creating-midi-clips)). Double-click the clip; it opens in the Drum Editor.
-3. Drag an audio file onto the row of the instrument, for example a kick sample onto **Bass drum**. You can drag from your file manager or from the **Media** tab (**F6**, see the chapter *Media browser and content*). Drop it anywhere in the row, on the name or in the grid.
+3. Drag an audio file onto the row of the instrument, for example a kick sample onto **Bass drum**. You can drag from your file manager or from the **Media** tab (**F6**, see the chapter [Media browser and content](media-browser.md)). Drop it anywhere in the row, on the name or in the grid.
 4. The name of the sample appears in small letters under the instrument name (1 in the picture). Click the name to hear it.
 5. Repeat for the other instruments, then place hits ([§5](#5-placing-hits)).
 

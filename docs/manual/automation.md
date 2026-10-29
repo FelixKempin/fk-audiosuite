@@ -276,13 +276,13 @@ Instead of drawing, you can play the song and move the controls; FK Audio Suite 
 1. Make sure **Automation write** and **Automation read** are on in the transport bar ([§8](#8-read-and-write-for-the-whole-project)).
 2. Show the automation lanes of the track and set its mode to **Touch** (or **Latch**) ([§7](#7-automation-modes)).
 3. Start playback.
-4. Move the volume fader of the track, in the Inspector ([Tracks §5](tracks.md#5-the-track-in-the-inspector)) or in the MixConsole (see the chapter *MixConsole*). The movement is recorded while you hold the fader (**Touch**) or until you stop playback (**Latch**).
+4. Move the volume fader of the track, in the Inspector ([Tracks §5](tracks.md#5-the-track-in-the-inspector)) or in the MixConsole (see the chapter [MixConsole](mixconsole.md)). The movement is recorded while you hold the fader (**Touch**) or until you stop playback (**Latch**).
 5. Stop playback. The new points appear in the lane; to see them, choose **Volume** in a lane.
 
 What can be recorded:
 
 - **Volume** and **Pan** from the faders and pan controls in the Inspector and the MixConsole.
-- Plugin parameters from the plugin window (see the chapter *Instruments and effects*).
+- Plugin parameters from the plugin window (see the chapter [Instruments and effects](instruments-and-effects.md)).
 - Every parameter you control with a hardware controller via MIDI Learn ([§10](#10-midi-learn-and-automation)).
 
 After recording, the recorded stretch is thinned out: points that do not change the shape of the curve noticeably are removed, so the curve stays easy to edit.
@@ -306,7 +306,7 @@ With MIDI Learn you control a parameter with a knob, fader or pad of a MIDI cont
 2. Touch the control in FK Audio Suite, for example a fader in the mixer or a knob in a plugin window. The hint changes to *Now move the hardware knob or pad*.
 3. Move the hardware control. The link is made.
 
-Links are saved with the project. **Studio › MIDI mappings...** lists them (for example **CC 74 (channel 1)**); there you can remove one link (**Remove this mapping**) or all of them (**Remove all**). Both are editing steps (**Remove MIDI mapping**, **Remove all MIDI mappings**). Details follow in the chapter *Studio connections and settings*.
+Links are saved with the project. **Studio › MIDI mappings...** lists them (for example **CC 74 Sound Brightness (channel 1)**); there you can remove one link (**Remove this mapping**) or all of them (**Remove all**). Both are editing steps (**Remove MIDI mapping**, **Remove all MIDI mappings**). Details follow in the chapter [Studio connections and settings](studio-and-settings.md).
 
 ---
 

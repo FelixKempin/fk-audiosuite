@@ -98,7 +98,7 @@ The List Editor shows **notes only**. Controller data (sustain pedal, mod wheel,
 The start of the note on the project timeline, written as **bar.beat.tick** with leading zeros, for example **002.01.000** for the first beat of bar 2. This is the position in the **project**, not inside the clip: a note at the very start of a clip that begins in bar 2 shows **002.01.000**.
 
 - A beat has **480 ticks**, so **002.01.240** is half a beat after the first beat of bar 2.
-- The conversion uses the tempo and time signature of the project (see the chapter *Signature track*).
+- The conversion uses the tempo and time signature of the project (see the chapter [Signature track](signature-track.md)).
 
 ### Note (4)
 
@@ -303,7 +303,7 @@ Every value you change is one undo step named **List Editor**. Deleting is one s
 
 If a change is not possible, a window titled **Error** explains why and the cell keeps its old value. For example:
 
-- The track is baked: *"{track}" is baked. To edit it, unbake it first (track header or inspector).* If it is baked into a group: *"{track}" is baked into the group "{group}". To edit it, unbake it there.* (see [Arranging, §21](arranging.md#21-baked-tracks) and the chapter *Track bake*).
+- The track is baked: *"{track}" is baked. To edit it, unbake it first (track header or inspector).* If it is baked into a group: *"{track}" is baked into the group "{group}". To edit it, unbake it there.* (see [Arranging, §21](arranging.md#21-baked-tracks) and the chapter [Track bake](track-bake.md)).
 - The clip or the note no longer exists: *MIDI clip not found.* or *Note not found.*
 
 ---

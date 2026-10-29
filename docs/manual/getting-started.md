@@ -276,7 +276,7 @@ New instrument tracks listen to **All MIDI inputs**, so any switched-on keyboard
 
 <!-- FIX F-106: dialog title and hint may use the same wording as the Studio menu -->
 <!-- FIX F-107: Studio connections may also open without a project -->
-With **Studio › Studio connections...** you give the channels of your interface your own names, for example *Guitar DI* instead of the driver's name. The window **Studio Connections** lists **Inputs** and **Outputs**, each with the driver name on the left and a field for your name on the right. Leave a field empty to use the driver's name. The names apply to all projects and appear wherever you choose an input or output. The entry needs an open project. If no audio device is active, the window says so and points you to the audio settings. Details: see the chapter *Studio connections and settings*.
+With **Studio › Studio connections...** you give the channels of your interface your own names, for example *Guitar DI* instead of **Input 1**. The window **Studio Connections** lists **Inputs** and **Outputs**, each with the standard name (for example **Input 3** or **Output 3+4**) on the left and a field for your name on the right. Leave a field empty to keep the standard name. <!-- FIX F-1903: the tooltip says "name from the driver" --> The names apply to all projects and appear wherever you choose an input or output. The entry needs an open project. If no audio device is active, the window says so and points you to the audio settings. Details: see the chapter [Studio connections and settings](studio-and-settings.md).
 
 ---
 
@@ -303,7 +303,7 @@ If a folder with that name already exists, you see *A folder "…" already exist
 | 4 | Arrangement area | Empty: a new project has no tracks |
 | 5 | Lower zone | The **MixConsole** tab |
 
-A new project runs at **120 BPM** in **4/4**, with the sample rate of your audio device. Change tempo and time signature in the transport bar; see the chapter *Signature track*. Projects in depth: see the chapter *Projects*.
+A new project runs at **120 BPM** in **4/4**, with the sample rate of your audio device. Change tempo and time signature in the transport bar; see the chapter [Signature track](signature-track.md). Projects in depth: see the chapter [Projects](projects.md).
 
 ### Step 2: Add an instrument track
 
@@ -344,7 +344,7 @@ All ways to enter and edit notes are in the chapter [Key Editor](key-editor.md),
 3. Press **Num \*** (or click the Record button in the transport bar) and play.
 4. Press **Space** to stop.
 
-Recording in depth (count-in, punch, takes, MIDI record modes): see the chapter *Recording audio and MIDI*.
+Recording in depth (count-in, punch, takes, MIDI record modes): see the chapter [Recording audio and MIDI](recording.md).
 
 ### Step 5: Listen
 
@@ -352,7 +352,7 @@ Recording in depth (count-in, punch, takes, MIDI record modes): see the chapter 
 2. Press **Space** to play. The Play button turns green.
 3. Press **Space** again to stop.
 
-To repeat a section, drag across it in the ruler and press **Num /** to switch the loop on. All transport functions: see the chapter *Transport*.
+To repeat a section, drag across it in the ruler and press **Num /** to switch the loop on. All transport functions: see the chapter [Transport](transport.md).
 
 ### Step 6: Save
 
@@ -374,7 +374,7 @@ When you quit (**File › Quit** or the close button of the window) or open anot
 
 ### Step 7: Open it again
 
-Next time, click **Open** and choose the `.tracktionedit` file in the project folder, or click the Recent button and pick the project from the list of recently opened projects. If FK Audio Suite was not closed properly and an automatic backup is newer than the saved file, you are asked whether to restore it. See the chapter *Projects*.
+Next time, click **Open** and choose the `.tracktionedit` file in the project folder, or click the Recent button and pick the project from the list of recently opened projects. If FK Audio Suite was not closed properly and an automatic backup is newer than the saved file, you are asked whether to restore it. See the chapter [Projects](projects.md).
 
 **Where to go from here:** [The project window](project-window.md) explains every area of the window. The chapters *Tracks*, *Recording audio and MIDI* and *Arranging* follow the next steps of making a song.
 
@@ -440,7 +440,7 @@ These reports are written silently; FK Audio Suite does not mention them at the 
 | The MIDI keyboard does nothing | Check that its switch under **MIDI inputs** is on ([§5.7](#57-midi-inputs)) and that the track's input is **All MIDI inputs** or your keyboard. |
 | Linux: FK Audio Suite does not show up in the PipeWire graph | Start it with `pw-jack` ([§2](#2-installing-on-linux)). |
 | A project asks about the sample rate | See [§5.4](#54-sample-rate). |
-| An instrument plugin is missing from the menu | Scan for plugins in the plugin manager (**Studio › Plugin manager...**); see the chapter *Instruments and effects*. |
+| An instrument plugin is missing from the menu | Scan for plugins in the plugin manager (**Studio › Plugin manager...**); see the chapter [Instruments and effects](instruments-and-effects.md). |
 
 ---
 
