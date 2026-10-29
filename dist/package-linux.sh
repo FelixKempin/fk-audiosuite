@@ -34,12 +34,17 @@ else
 fi
 
 # linuxdeploy holt die nötigen Bibliotheken (freetype, libstdc++ …) ins AppImage. Es wird einmal
-# heruntergeladen und in dist/tools/ abgelegt (nicht im Git).
-LINUXDEPLOY="dist/tools/linuxdeploy-x86_64.AppImage"
+# heruntergeladen und in dist/tools/ abgelegt (nicht im Git). Feste Version mit Prüfsumme, nicht
+# "continuous": sonst kämen ungeprüft andere Werkzeuge ins Paket.
+LINUXDEPLOY="dist/tools/linuxdeploy-1-alpha-20251107-1-x86_64.AppImage"
 if [[ ! -x "${LINUXDEPLOY}" ]]; then
   echo "==> linuxdeploy laden"
-  curl -fL --retry 3 -o "${LINUXDEPLOY}" \
-    https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+  mkdir -p dist/tools
+  curl -fL --retry 3 -o "${LINUXDEPLOY}.part" \
+    https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20251107-1/linuxdeploy-x86_64.AppImage
+  echo "c20cd71e3a4e3b80c3483cef793cda3f4e990aca14014d23c544ca3ce1270b4d  ${LINUXDEPLOY}.part" | sha256sum -c --quiet \
+    || { rm -f "${LINUXDEPLOY}.part"; echo "linuxdeploy: Prüfsumme stimmt nicht" >&2; exit 1; }
+  mv "${LINUXDEPLOY}.part" "${LINUXDEPLOY}"
   chmod +x "${LINUXDEPLOY}"
 fi
 
