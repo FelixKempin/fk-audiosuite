@@ -74,6 +74,14 @@ cat > "${FK_OUT}/release-${FK_PLATFORM}.json" <<JSON
 }
 JSON
 
+# Manifest fk-release-manifest/1 je Datei (dist/write-manifest.py); nur für echte Reifestufen.
+case "${FK_RELEASE_CHANNEL}" in
+  alpha|beta|stable)
+    python3 dist/write-manifest.py --out "${FK_OUT}" --file "$(basename "${APPIMAGE}")" \
+      --product fk-audio-suite --family fk-audio --version "${FK_VERSION}" --track "${FK_RELEASE_CHANNEL}" \
+      --os linux --arch x86_64 --package appimage --os-min "glibc 2.35" ;;
+esac
+
 echo
 echo "==> Paket:   ${APPIMAGE}"
 echo "    Testen:  chmod +x \"${APPIMAGE}\" && \"${APPIMAGE}\""

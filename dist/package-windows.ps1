@@ -80,6 +80,22 @@ $manifest = [ordered]@{
 } | ConvertTo-Json
 Write-Utf8NoBom (Join-Path $FkOut "release-$FkPlatform.json") $manifest
 
+# Manifest fk-release-manifest/1 je Datei (dist/write-manifest.py); nur für echte Reifestufen.
+$py = @('python3', 'python') | Where-Object { Get-Command $_ -ErrorAction SilentlyContinue } | Select-Object -First 1
+if ($FkChannel -in @('alpha', 'beta', 'stable') -and $py) {
+    foreach ($item in @(@($primary, 'installer'), @($zip, 'portable'))) {
+        $file, $package = $item
+        if (-not (Test-Path $file)) { continue }
+        $signed = if ((Get-AuthenticodeSignature $(if ($package -eq 'portable') { Join-Path $stage 'FK Audio Suite.exe' } else { $file })).Status -eq 'Valid') { 'signed' } else { 'none' }
+        & $py (Join-Path $PSScriptRoot 'write-manifest.py') --out $FkOut --file (Split-Path -Leaf $file) `
+            --product fk-audio-suite --family fk-audio --version $FkVersion --track $FkChannel `
+            --os windows --arch x86_64 --package $package --signature $signed --os-min 10
+        if ($LASTEXITCODE -ne 0) { throw 'Manifest v1 fehlgeschlagen' }
+    }
+} elseif ($FkChannel -in @('alpha', 'beta', 'stable')) {
+    Write-Host '::warning::Python fehlt: nur das alte Manifest release-*.json geschrieben.'
+}
+
 Remove-Item -Recurse -Force (Join-Path $FkOut 'stage')
 Write-Host ''
 Write-Host "==> Paket:     $primary"
